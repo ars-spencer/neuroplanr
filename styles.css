@@ -469,6 +469,21 @@ body.dark .wsum-label{color:var(--gl);}
 .rec-text{font-size:11px;color:var(--t2);line-height:1.5;}
 .rec-badge{font-size:9px;padding:2px 7px;border-radius:20px;margin-top:5px;display:inline-block;font-weight:500;}
 
+/* ── CARRIED FORWARD BANNER ── */
+.carried-banner{display:flex;align-items:center;gap:8px;margin:8px 22px 0;padding:9px 13px;background:rgba(192,120,64,.08);border:1px solid rgba(192,120,64,.22);border-radius:11px;font-size:11px;color:var(--ru);}
+body.dark .carried-banner{background:rgba(192,120,64,.12);}
+.carried-dot{font-size:13px;}
+
+/* ── BLOCK TASKS AREA ── */
+.block-tasks{margin-bottom:4px;}
+.bitem{display:flex;align-items:center;gap:5px;margin-bottom:4px;cursor:pointer;}
+.bitem-del{background:transparent;border:none;color:var(--t3);font-size:13px;cursor:pointer;padding:0 2px;opacity:0;transition:opacity .15s;margin-left:auto;flex-shrink:0;line-height:1;}
+.bitem:hover .bitem-del,.bitem .bitem-del:focus{opacity:1;}
+.bitem-del:hover{color:var(--te);}
+.bitem.carried{opacity:.8;}
+.carried-badge{font-size:9px;color:var(--ru);margin-left:3px;flex-shrink:0;}
+.badd{opacity:1 !important;position:static;display:inline-block;margin-top:4px;}
+
 /* ── TASK EDIT BUTTON ── */
 .task-edit-btn{margin-left:auto;flex-shrink:0;background:transparent;border:none;color:var(--t3);font-size:13px;cursor:pointer;padding:0 2px;opacity:0;transition:opacity .18s;line-height:1;font-family:var(--sans);}
 .task:hover .task-edit-btn{opacity:1;}
