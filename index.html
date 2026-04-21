@@ -314,7 +314,7 @@
     <div><div class="ct-symptom"><span class="ct-sym-label">focus</span><div class="ct-sym-bar"><div class="ct-sym-fill" style="width:35%;background:var(--ru)"></div></div><span class="ct-sym-val">low</span></div><div class="ct-symptom"><span class="ct-sym-label">energy</span><div class="ct-sym-bar"><div class="ct-sym-fill" style="width:40%;background:var(--rl)"></div></div><span class="ct-sym-val">low</span></div><div class="ct-symptom"><span class="ct-sym-label">mood stability</span><div class="ct-sym-bar"><div class="ct-sym-fill" style="width:30%;background:var(--tl)"></div></div><span class="ct-sym-val">low</span></div><div class="ct-symptom"><span class="ct-sym-label">task completion</span><div class="ct-sym-bar"><div class="ct-sym-fill" style="width:42%;background:var(--ru)"></div></div><span class="ct-sym-val">42%</span></div></div>
     <div style="font-size:11px;color:var(--t3);line-height:1.5;padding:10px 0 0;border-top:1px solid var(--b)">luteal phase typically lowers dopamine transmission — ADHD symptoms often intensify. your data confirms this pattern.</div>
   </div>
-  <div class="sh"><span class="sh-t">brain dump inbox</span><div style="display:flex;gap:10px;align-items:center"><span class="sh-a" onclick="openMindMap()">mind map</span><span class="sh-a" onclick="showDumpPop()">+ add</span></div></div>
+  <div class="sh"><span class="sh-t">brain dump inbox</span><span class="sh-a" onclick="showDumpPop()">+ add</span></div>
   <div style="padding:0 22px" id="dumpInbox"><div style="text-align:center;padding:24px;font-size:13px;color:var(--t3);font-style:italic">your brain dump inbox is empty</div></div>
 </div>
 
@@ -369,21 +369,19 @@
 </div>
 
 <!-- ═══ MIND MAP ═══ -->
-<div class="screen nopb" id="s-mindmap">
-  <div class="mm-topbar">
-    <button class="mm-back" onclick="closeMindMap()">← back</button>
-    <span class="mm-title">mind map</span>
-    <button class="mdbtn" onclick="toggleMode()"></button>
-  </div>
+<div class="screen" id="s-map">
+  <div class="topbar"><span style="font-family:var(--serif);font-size:16px;color:var(--t1)">neuro<em style="color:var(--gm);font-style:normal">planr</em></span><button class="mdbtn" onclick="toggleMode()"></button></div>
+  <div class="hdr"><div class="hdr-s">free-form thinking</div><div class="hdr-t">mind <em>map</em></div></div>
   <div class="mm-toolbar">
     <button class="mm-mode-btn on" onclick="mmSetMode('drag',this)" title="drag mode">✥ drag</button>
     <button class="mm-mode-btn" onclick="mmSetMode('connect',this)" title="connect mode">⟡ connect</button>
     <button class="mm-tool-btn" onclick="mmAddNodeBtn()">+ node</button>
+    <button class="mm-tool-btn" onclick="mmSeedFromDumps()" title="pull in brain dumps">⬇ dumps</button>
     <button class="mm-tool-btn danger" onclick="mmClearAll()">clear</button>
   </div>
   <div class="mm-hint" id="mmConnectHint" style="display:none">tap two nodes to connect them</div>
   <div class="mm-canvas" id="mmCanvas">
-    <div class="mm-empty-hint" id="mmEmptyHint">double-tap anywhere to add a thought</div>
+    <div class="mm-empty-hint" id="mmEmptyHint">double-tap to add a thought · drag to move · tap ⬇ dumps to pull in brain dumps</div>
   </div>
 </div>
 
@@ -392,6 +390,7 @@
   <div class="ni" id="nav-home" onclick="goTab('home')"><div class="nic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><span class="nil">home</span></div>
   <div class="ni" id="nav-plan" onclick="goTab('plan')"><div class="nic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="nil">plan</span></div>
   <div class="ni" id="nav-track" onclick="goTab('track')"><div class="nic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><span class="nil">track</span></div>
+  <div class="ni" id="nav-map" onclick="goTab('map')"><div class="nic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><circle cx="4" cy="6" r="2"/><circle cx="20" cy="6" r="2"/><circle cx="4" cy="18" r="2"/><circle cx="20" cy="18" r="2"/><line x1="6" y1="6" x2="10" y2="11"/><line x1="18" y1="6" x2="14" y2="11"/><line x1="6" y1="18" x2="10" y2="13"/><line x1="18" y1="18" x2="14" y2="13"/></svg></div><span class="nil">map</span></div>
   <div class="ni" id="nav-insights" onclick="goTab('insights')"><div class="nic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div><span class="nil">insights</span></div>
 </nav>
 </div><!-- /app -->
@@ -472,7 +471,19 @@
       <button class="pbtn" onclick="addTask()">add task</button>
       <button class="pbtn sec" onclick="closePop()">cancel</button>
     </div>
-    <div id="p-dump" style="display:none">
+    <div id="p-task-edit" style="display:none">
+      <div class="pop-t">edit task</div>
+      <input class="tinput" id="editTaskInput" type="text" placeholder="task text..."/>
+      <div class="dom-row">
+        <button class="dom-chip" id="edc-personal" onclick="pickEditDom(this,'var(--gm)')"><div class="ddot" style="background:var(--gm)"></div>personal</button>
+        <button class="dom-chip" id="edc-work" onclick="pickEditDom(this,'var(--te)')"><div class="ddot" style="background:var(--te)"></div>work</button>
+        <button class="dom-chip" id="edc-brain" onclick="pickEditDom(this,'var(--pl)')"><div class="ddot" style="background:var(--pl)"></div>brain</button>
+        <button class="dom-chip" id="edc-body" onclick="pickEditDom(this,'var(--ru)')"><div class="ddot" style="background:var(--ru)"></div>body</button>
+      </div>
+      <button class="pbtn" onclick="saveTaskEdit()">save changes</button>
+      <button class="pbtn" style="background:rgba(139,69,19,.12);color:var(--te);border:1px solid rgba(139,69,19,.2)" onclick="deleteTask()">delete task</button>
+      <button class="pbtn sec" onclick="closePop()">cancel</button>
+    </div>
       <div class="pop-t">brain dump</div>
       <div class="pop-sub">no format. no judgement. just get it out.</div>
       <textarea id="dumpTxt" placeholder="everything clogging your brain goes here..." style="width:100%;background:var(--bg2);border:1px solid var(--b);border-radius:12px;padding:13px 14px;color:var(--t1);font-family:var(--sans);font-size:13px;outline:none;min-height:100px;resize:none;margin-bottom:12px;display:block;line-height:1.5"></textarea>
