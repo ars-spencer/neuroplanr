@@ -145,6 +145,7 @@ function finishOnboarding() {
 function goToApp() {
   loadAllData();
   showMainNav(true);
+  showScreen('s-home');
   goTab('home');
 }
 
