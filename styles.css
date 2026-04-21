@@ -469,7 +469,20 @@ body.dark .wsum-label{color:var(--gl);}
 .rec-text{font-size:11px;color:var(--t2);line-height:1.5;}
 .rec-badge{font-size:9px;padding:2px 7px;border-radius:20px;margin-top:5px;display:inline-block;font-weight:500;}
 
-/* ── TASK DEADLINE FLAG ── */
+/* ── TASK EDIT BUTTON ── */
+.task-edit-btn{margin-left:auto;flex-shrink:0;background:transparent;border:none;color:var(--t3);font-size:13px;cursor:pointer;padding:0 2px;opacity:0;transition:opacity .18s;line-height:1;font-family:var(--sans);}
+.task:hover .task-edit-btn{opacity:1;}
+.task-edit-btn:hover{color:var(--t2);}
+
+/* ── 5-TAB NAV ── */
+.ni{padding:5px 10px;}
+
+/* ── MIND MAP SCREEN — canvas fills remaining height ── */
+#s-map.show{display:flex;flex-direction:column;}
+#s-map .mm-canvas{flex:1;min-height:300px;}
+
+/* ── REMOVE OLD BACK BUTTON STYLES (kept for safety) ── */
+.mm-topbar,.mm-back,.mm-title{display:none;}
 .task-dl-flag{display:block;font-size:9px;color:var(--te);margin-top:2px;opacity:.8;}
 body.dark .task-dl-flag{color:var(--tl);}
 
