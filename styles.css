@@ -34,6 +34,7 @@ body.dark{
 .screen{display:none;min-height:100vh;flex-direction:column;padding-bottom:90px;}
 .screen.show{display:flex;animation:fi .28s ease;}
 .screen.nopb{padding-bottom:0;}
+#s-mindmap.show{display:flex;flex-direction:column;height:100vh;}
 @keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── SHARED COMPONENTS ── */
@@ -467,6 +468,65 @@ body.dark .wsum-label{color:var(--gl);}
 .rec-title{font-size:12px;font-weight:600;color:var(--t1);margin-bottom:3px;}
 .rec-text{font-size:11px;color:var(--t2);line-height:1.5;}
 .rec-badge{font-size:9px;padding:2px 7px;border-radius:20px;margin-top:5px;display:inline-block;font-weight:500;}
+
+/* ── TASK DEADLINE FLAG ── */
+.task-dl-flag{display:block;font-size:9px;color:var(--te);margin-top:2px;opacity:.8;}
+body.dark .task-dl-flag{color:var(--tl);}
+
+/* ── TASK EXTRA FIELDS (deadline + duration in popup) ── */
+.task-extra-row{display:flex;gap:8px;margin-bottom:8px;}
+.tex-field{flex:1;display:flex;flex-direction:column;gap:4px;}
+.tex-label{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;}
+.tex-input{background:var(--su);border:1.5px solid var(--b);border-radius:10px;padding:9px 11px;color:var(--t1);font-family:var(--sans);font-size:12px;outline:none;transition:border-color .2s;width:100%;}
+.tex-input:focus{border-color:var(--ga);}
+.tex-input[type=date],.tex-input[type=time],.tex-input[type=number]{-webkit-appearance:none;appearance:none;}
+body.dark .tex-input{color-scheme:dark;}
+
+/* ── BLOCK ITEM DURATION BADGE ── */
+.bitem-dur{font-size:9px;color:var(--t3);background:var(--bg3);border-radius:6px;padding:1px 5px;margin-left:3px;flex-shrink:0;}
+
+/* ── WEEK DEADLINE ITEMS — delete button + empty state ── */
+.wdi{display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--su);border:1px solid var(--b);border-radius:11px;margin-bottom:6px;box-shadow:0 1px 3px var(--sh);}
+.wdi-del{width:22px;height:22px;border-radius:50%;background:transparent;border:1px solid var(--b);color:var(--t3);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .18s;line-height:1;padding:0;}
+.wdi-del:hover{background:rgba(139,69,19,.1);border-color:var(--te);color:var(--te);}
+.wdi-empty{font-size:11px;color:var(--t3);font-style:italic;padding:10px 0 4px;text-align:center;}
+
+/* ── MIND MAP BUTTON IN DUMP INBOX ── */
+.di-btn.mindmap-btn{border-color:rgba(107,91,139,.3);color:var(--pl);}
+body.dark .di-btn.mindmap-btn{color:var(--pll);}
+
+/* ── MIND MAP SCREEN ── */
+.mm-topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 0;flex-shrink:0;}
+.mm-back{background:transparent;border:1px solid var(--b);border-radius:22px;padding:6px 13px;font-family:var(--sans);font-size:12px;color:var(--t2);cursor:pointer;transition:all .18s;outline:none;}
+.mm-back:active{background:var(--bg3);}
+.mm-title{font-family:var(--serif);font-size:16px;color:var(--t1);}
+.mm-toolbar{display:flex;gap:6px;padding:12px 18px 0;flex-shrink:0;}
+.mm-mode-btn{flex:1;padding:8px 6px;border-radius:10px;border:1.5px solid var(--b);background:var(--bg2);font-family:var(--sans);font-size:11px;font-weight:600;color:var(--t3);cursor:pointer;transition:all .18s;outline:none;}
+.mm-mode-btn.on{border-color:var(--ga);background:rgba(92,143,58,.1);color:var(--gm);}
+body.dark .mm-mode-btn.on{background:rgba(92,143,58,.15);color:var(--gl);}
+.mm-tool-btn{padding:8px 12px;border-radius:10px;border:1.5px solid var(--b);background:var(--bg2);font-family:var(--sans);font-size:11px;font-weight:600;color:var(--t2);cursor:pointer;transition:all .18s;outline:none;white-space:nowrap;}
+.mm-tool-btn:active{transform:scale(.96);}
+.mm-tool-btn.danger{border-color:rgba(139,69,19,.25);color:var(--te);}
+body.dark .mm-tool-btn.danger{color:var(--tl);}
+.mm-hint{margin:8px 18px 0;font-size:11px;color:var(--t3);background:rgba(107,91,139,.08);border:1px solid rgba(107,91,139,.18);border-radius:9px;padding:7px 12px;text-align:center;flex-shrink:0;}
+body.dark .mm-hint{background:rgba(107,91,139,.14);}
+.mm-canvas{flex:1;position:relative;overflow:hidden;margin:10px 0 0;background:var(--bg2);touch-action:none;user-select:none;min-height:0;}
+body.dark .mm-canvas{background:var(--bg2);}
+/* subtle dot grid on canvas */
+.mm-canvas::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,var(--b2) 1px,transparent 1px);background-size:22px 22px;pointer-events:none;opacity:.6;}
+.mm-empty-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:13px;color:var(--t3);font-style:italic;text-align:center;pointer-events:none;line-height:1.6;}
+
+/* ── MIND MAP NODES ── */
+.mm-node{position:absolute;min-width:120px;max-width:200px;background:var(--su);border:1.5px solid var(--b);border-radius:16px;padding:10px 32px 10px 13px;box-shadow:0 2px 10px var(--sh);cursor:grab;transition:box-shadow .18s,border-color .2s;z-index:1;}
+.mm-node:active{cursor:grabbing;box-shadow:0 6px 20px var(--sh);z-index:5;}
+.mm-node:hover{border-color:var(--b2);}
+.mm-node.mm-node-connecting{border-color:var(--pl);background:rgba(107,91,139,.08);box-shadow:0 0 0 3px rgba(107,91,139,.2);}
+body.dark .mm-node{background:var(--su);}
+.mm-node-text{font-family:var(--sans);font-size:12px;color:var(--t1);outline:none;min-width:30px;line-height:1.5;word-break:break-word;cursor:text;}
+.mm-node-text:empty::before{content:'tap to edit';color:var(--t3);font-style:italic;}
+.mm-node-del{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;background:var(--bg3);border:none;color:var(--t3);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .18s;padding:0;line-height:1;}
+.mm-node:hover .mm-node-del{opacity:1;}
+.mm-node-del:hover{background:rgba(139,69,19,.15);color:var(--te);}
 
 /* ── DONE FLASH ── */
 .dfl{position:fixed;inset:0;background:rgba(92,143,58,.12);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
