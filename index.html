@@ -199,10 +199,10 @@
     </div>
     <div class="sh"><span class="sh-t">week by domain</span></div>
     <div class="rings">
-      <div class="ring"><div class="ring-w"><svg width="66" height="66" viewBox="0 0 66 66"><circle cx="33" cy="33" r="27" fill="none" stroke="rgba(61,107,32,.12)" stroke-width="5"/><circle cx="33" cy="33" r="27" fill="none" stroke="var(--gm)" stroke-width="5" stroke-dasharray="102 68" stroke-linecap="round"/></svg><div class="ring-pct" style="color:var(--gm)">60%</div></div><div class="ring-n">personal</div></div>
-      <div class="ring"><div class="ring-w"><svg width="66" height="66" viewBox="0 0 66 66"><circle cx="33" cy="33" r="27" fill="none" stroke="rgba(139,69,19,.12)" stroke-width="5"/><circle cx="33" cy="33" r="27" fill="none" stroke="var(--te)" stroke-width="5" stroke-dasharray="127 43" stroke-linecap="round"/></svg><div class="ring-pct" style="color:var(--te)">75%</div></div><div class="ring-n">work</div></div>
-      <div class="ring"><div class="ring-w"><svg width="66" height="66" viewBox="0 0 66 66"><circle cx="33" cy="33" r="27" fill="none" stroke="rgba(107,91,139,.12)" stroke-width="5"/><circle cx="33" cy="33" r="27" fill="none" stroke="var(--pl)" stroke-width="5" stroke-dasharray="60 110" stroke-linecap="round"/></svg><div class="ring-pct" style="color:var(--pl)">35%</div></div><div class="ring-n">brain</div></div>
-      <div class="ring"><div class="ring-w"><svg width="66" height="66" viewBox="0 0 66 66"><circle cx="33" cy="33" r="27" fill="none" stroke="rgba(192,120,64,.12)" stroke-width="5"/><circle cx="33" cy="33" r="27" fill="none" stroke="var(--ru)" stroke-width="5" stroke-dasharray="78 92" stroke-linecap="round"/></svg><div class="ring-pct" style="color:var(--ru)">46%</div></div><div class="ring-n">body</div></div>
+      <div class="ring"><div class="ring-w"><svg width="66" height="66" viewBox="0 0 66 66"><circle cx="33" cy="33" r="27" fill="none" stroke="rgba(61,107,32,.12)" stroke-width="5"/><circle id="ring-personal" cx="33" cy="33" r="27" fill="none" stroke="var(--gm)" stroke-width="5" stroke-dasharray="0 169.6" stroke-linecap="round"/></svg><div class="ring-pct" id="ring-pct-personal" style="color:var(--gm)">0%</div></div><div class="ring-n">personal</div></div>
+      <div class="ring"><div class="ring-w"><svg width="66" height="66" viewBox="0 0 66 66"><circle cx="33" cy="33" r="27" fill="none" stroke="rgba(139,69,19,.12)" stroke-width="5"/><circle id="ring-work" cx="33" cy="33" r="27" fill="none" stroke="var(--te)" stroke-width="5" stroke-dasharray="0 169.6" stroke-linecap="round"/></svg><div class="ring-pct" id="ring-pct-work" style="color:var(--te)">0%</div></div><div class="ring-n">work</div></div>
+      <div class="ring"><div class="ring-w"><svg width="66" height="66" viewBox="0 0 66 66"><circle cx="33" cy="33" r="27" fill="none" stroke="rgba(107,91,139,.12)" stroke-width="5"/><circle id="ring-brain" cx="33" cy="33" r="27" fill="none" stroke="var(--pl)" stroke-width="5" stroke-dasharray="0 169.6" stroke-linecap="round"/></svg><div class="ring-pct" id="ring-pct-brain" style="color:var(--pl)">0%</div></div><div class="ring-n">brain</div></div>
+      <div class="ring"><div class="ring-w"><svg width="66" height="66" viewBox="0 0 66 66"><circle cx="33" cy="33" r="27" fill="none" stroke="rgba(192,120,64,.12)" stroke-width="5"/><circle id="ring-body" cx="33" cy="33" r="27" fill="none" stroke="var(--ru)" stroke-width="5" stroke-dasharray="0 169.6" stroke-linecap="round"/></svg><div class="ring-pct" id="ring-pct-body" style="color:var(--ru)">0%</div></div><div class="ring-n">body</div></div>
     </div>
     <div class="sh"><span class="sh-t">weekly insight</span></div>
     <div class="insight-card"><div class="it"><div class="it-dot"></div>neuroplanr</div><div class="it-text" id="homeInsight">"Brain health tasks drop in your luteal week. Scheduling therapy earlier in your cycle could triple your follow-through."</div></div>
@@ -228,16 +228,16 @@
     <div class="dnav"><button class="dnarr" onclick="shiftDay(-1)">‹</button><div><div class="dlbl" id="dlbl">today</div><div class="dsub" id="dsub">monday · april 21</div></div><button class="dnarr" onclick="shiftDay(1)">›</button></div>
     <div class="tray"><div class="tray-h"><span>unscheduled</span><span class="tray-a" onclick="showTaskPop()">+ add</span></div><div class="tray-chips" id="trayChips"></div></div>
     <div class="blocks">
-      <div class="br"><div class="bt">7 am</div><div class="bb pk"><div class="btop"><span class="bname">morning</span><span class="eb eb-p">peak energy</span></div><div class="bitem" onclick="toggleBT(this)"><div class="bcb"></div><div class="bpip" style="background:var(--te)"></div><span class="btt">dr call</span></div><span class="badd" onclick="showTaskPop()">+ add</span></div></div>
+      <div class="br"><div class="bt">7 am</div><div class="bb pk" id="block-7am"><div class="btop"><span class="bname">morning</span><span class="eb eb-p">peak energy</span></div><div class="bitem" onclick="toggleBT(this)"><div class="bcb"></div><div class="bpip" style="background:var(--te)"></div><span class="btt">dr call</span></div><span class="badd" onclick="showTaskPop('block-7am')">+ add</span></div></div>
       <div class="br"><div class="bt"></div><div class="bb buf"><span class="eb-b">— transition buffer 15 min —</span></div></div>
-      <div class="br"><div class="bt">10 am</div><div class="bb st" id="ablock"><div class="btop"><span class="bname">mid-morning</span><span class="eb eb-s">steady</span></div><div class="bempty">tap + add to schedule tasks</div><span class="badd" onclick="showTaskPop()">+ add</span></div></div>
+      <div class="br"><div class="bt">10 am</div><div class="bb st" id="ablock"><div class="btop"><span class="bname">mid-morning</span><span class="eb eb-s">steady</span></div><div class="bempty">tap + add to schedule tasks</div><span class="badd" onclick="showTaskPop('ablock')">+ add</span></div></div>
       <div class="br"><div class="bt"></div><div class="bb buf"><span class="eb-b">— rest + lunch 30 min —</span></div></div>
-      <div class="br"><div class="bt">1 pm</div><div class="bb st"><div class="btop"><span class="bname">afternoon</span><span class="eb eb-s">steady</span></div><div class="bempty">low-friction tasks welcome</div><span class="badd" onclick="showTaskPop()">+ add</span></div></div>
+      <div class="br"><div class="bt">1 pm</div><div class="bb st" id="block-1pm"><div class="btop"><span class="bname">afternoon</span><span class="eb eb-s">steady</span></div><div class="bempty">low-friction tasks welcome</div><span class="badd" onclick="showTaskPop('block-1pm')">+ add</span></div></div>
       <div class="br"><div class="bt"></div><div class="bb buf"><span class="eb-b">— transition buffer 15 min —</span></div></div>
-      <div class="br"><div class="bt">4 pm</div><div class="bb lw"><div class="btop"><span class="bname">late afternoon</span><span class="eb eb-l">luteal · gentle</span></div><div class="bempty">low-friction only · admin · reading</div><span class="badd" onclick="showTaskPop()">+ add</span></div></div>
+      <div class="br"><div class="bt">4 pm</div><div class="bb lw" id="block-4pm"><div class="btop"><span class="bname">late afternoon</span><span class="eb eb-l">luteal · gentle</span></div><div class="bempty">low-friction only · admin · reading</div><span class="badd" onclick="showTaskPop('block-4pm')">+ add</span></div></div>
       <div class="br"><div class="bt"></div><div class="bb buf"><span class="eb-b">— wind-down buffer —</span></div></div>
-      <div class="br"><div class="bt">7 pm</div><div class="bb" style="border-left:3px solid var(--gl)"><div class="btop"><span class="bname">evening</span><span class="eb" style="background:rgba(92,143,58,.1);color:var(--ga)">restore</span></div><div class="bempty">dopamine menu · no screens goal</div></div></div>
-      <div class="br"><div class="bt">flex</div><div class="bb" style="border-style:dashed"><div class="btop"><span class="bname">flex zone</span><span class="eb" style="color:var(--t3)">overflow</span></div><div class="bempty">nothing planned here on purpose</div></div></div>
+      <div class="br"><div class="bt">7 pm</div><div class="bb" style="border-left:3px solid var(--gl)" id="block-7pm"><div class="btop"><span class="bname">evening</span><span class="eb" style="background:rgba(92,143,58,.1);color:var(--ga)">restore</span></div><div class="bempty">dopamine menu · no screens goal</div><span class="badd" onclick="showTaskPop('block-7pm')">+ add</span></div></div>
+      <div class="br"><div class="bt">flex</div><div class="bb" style="border-style:dashed" id="block-flex"><div class="btop"><span class="bname">flex zone</span><span class="eb" style="color:var(--t3)">overflow</span></div><div class="bempty">nothing planned here on purpose</div><span class="badd" onclick="showTaskPop('block-flex')">+ add</span></div></div>
     </div>
   </div>
 
@@ -254,9 +254,8 @@
     </div>
     <div class="wgrid"><div class="wdays" id="weekGrid"></div></div>
     <div class="wdead">
-      <div class="wdl2">deadlines this week</div>
-      <div class="wdi"><div class="wdd">Tue</div><div class="wdp" style="background:var(--te)"></div><div><div class="wdt">project brief submitted</div><div class="wdm">work</div></div></div>
-      <div class="wdi"><div class="wdd">Fri</div><div class="wdp" style="background:var(--te)"></div><div><div class="wdt">Q2 review presentation</div><div class="wdm">work</div></div></div>
+      <div class="wdl2" style="display:flex;justify-content:space-between;align-items:center">deadlines this week<span class="sh-a" onclick="showTaskPop();setTimeout(()=>{document.getElementById('taskDeadlineDate')?.focus()},350)">+ add</span></div>
+      <div id="weekDeadlines"><div class="wdi-empty">no deadlines this week · tap + add to add one</div></div>
     </div>
   </div>
 
@@ -315,7 +314,7 @@
     <div><div class="ct-symptom"><span class="ct-sym-label">focus</span><div class="ct-sym-bar"><div class="ct-sym-fill" style="width:35%;background:var(--ru)"></div></div><span class="ct-sym-val">low</span></div><div class="ct-symptom"><span class="ct-sym-label">energy</span><div class="ct-sym-bar"><div class="ct-sym-fill" style="width:40%;background:var(--rl)"></div></div><span class="ct-sym-val">low</span></div><div class="ct-symptom"><span class="ct-sym-label">mood stability</span><div class="ct-sym-bar"><div class="ct-sym-fill" style="width:30%;background:var(--tl)"></div></div><span class="ct-sym-val">low</span></div><div class="ct-symptom"><span class="ct-sym-label">task completion</span><div class="ct-sym-bar"><div class="ct-sym-fill" style="width:42%;background:var(--ru)"></div></div><span class="ct-sym-val">42%</span></div></div>
     <div style="font-size:11px;color:var(--t3);line-height:1.5;padding:10px 0 0;border-top:1px solid var(--b)">luteal phase typically lowers dopamine transmission — ADHD symptoms often intensify. your data confirms this pattern.</div>
   </div>
-  <div class="sh"><span class="sh-t">brain dump inbox</span><span class="sh-a" onclick="showDumpPop()">+ add</span></div>
+  <div class="sh"><span class="sh-t">brain dump inbox</span><div style="display:flex;gap:10px;align-items:center"><span class="sh-a" onclick="openMindMap()">mind map</span><span class="sh-a" onclick="showDumpPop()">+ add</span></div></div>
   <div style="padding:0 22px" id="dumpInbox"><div style="text-align:center;padding:24px;font-size:13px;color:var(--t3);font-style:italic">your brain dump inbox is empty</div></div>
 </div>
 
@@ -350,23 +349,42 @@
   </div>
   <div class="ins-card ic-terra" onclick="this.classList.toggle('open')">
     <div class="ic-tag" style="color:var(--te)"><div class="it-dot" style="background:var(--te)"></div>what's working</div>
-    <div class="ic-text">"you've used chaos mode 4 times this month. every single time, you came back within 24 hours."</div>
+    <div class="ic-text" id="chaosInsightText">"you've used chaos mode — and you came back each time. that's real resilience."</div>
     <div class="ic-action" style="color:var(--te)">why this matters</div>
     <div class="ic-expanded"><div class="ic-exp-text">returning after a disruption is the actual skill. chaos mode is your recovery mechanism working exactly as designed.</div></div>
   </div>
   <div class="sh"><span class="sh-t">domain balance</span></div>
   <div class="dom-balance">
     <div class="db-title">where your attention is going</div>
-    <div class="db-row"><span class="db-label">work</span><div class="db-track"><div class="db-fill" style="width:75%;background:var(--te)"></div></div><span class="db-val" style="color:var(--te)">75%</span></div>
-    <div class="db-row"><span class="db-label">personal</span><div class="db-track"><div class="db-fill" style="width:60%;background:var(--gm)"></div></div><span class="db-val" style="color:var(--gm)">60%</span></div>
-    <div class="db-row"><span class="db-label">body</span><div class="db-track"><div class="db-fill" style="width:46%;background:var(--ru)"></div></div><span class="db-val" style="color:var(--ru)">46%</span></div>
-    <div class="db-row"><span class="db-label">brain health</span><div class="db-track"><div class="db-fill" style="width:35%;background:var(--pl)"></div></div><span class="db-val" style="color:var(--pl)">35%</span></div>
-    <div class="db-note"><strong>brain health</strong> has been lowest for 3 weeks. one small brain health task per day in follicular phase could shift this significantly.</div>
+    <div class="db-row"><span class="db-label">work</span><div class="db-track"><div class="db-fill" id="db-fill-work" style="width:0%;background:var(--te)"></div></div><span class="db-val" id="db-val-work" style="color:var(--te)">0%</span></div>
+    <div class="db-row"><span class="db-label">personal</span><div class="db-track"><div class="db-fill" id="db-fill-personal" style="width:0%;background:var(--gm)"></div></div><span class="db-val" id="db-val-personal" style="color:var(--gm)">0%</span></div>
+    <div class="db-row"><span class="db-label">body</span><div class="db-track"><div class="db-fill" id="db-fill-body" style="width:0%;background:var(--ru)"></div></div><span class="db-val" id="db-val-body" style="color:var(--ru)">0%</span></div>
+    <div class="db-row"><span class="db-label">brain health</span><div class="db-track"><div class="db-fill" id="db-fill-brain" style="width:0%;background:var(--pl)"></div></div><span class="db-val" id="db-val-brain" style="color:var(--pl)">0%</span></div>
+    <div class="db-note">add tasks to see your domain balance here — it updates as you plan and complete.</div>
   </div>
   <div class="sh"><span class="sh-t">suggested for next week</span></div>
   <div class="rec-card"><div class="rec-icon" style="background:rgba(92,143,58,.1)">🌿</div><div class="rec-body"><div class="rec-title">schedule therapy in follicular phase</div><div class="rec-text">your therapy completion rate in follicular is 3× higher than luteal. next follicular window starts in ~9 days.</div><div class="rec-badge" style="background:var(--gp);color:var(--gm)">research-backed</div></div></div>
   <div class="rec-card"><div class="rec-icon" style="background:rgba(107,91,139,.1)">◉</div><div class="rec-body"><div class="rec-title">add one brain health task this week</div><div class="rec-text">just one. journaling, a walk, your CBT exercise. small consistent actions outperform big irregular ones.</div><div class="rec-badge" style="background:var(--pp);color:var(--pl)">low effort · high impact</div></div></div>
   <div class="rec-card" style="margin-bottom:0"><div class="rec-icon" style="background:rgba(192,120,64,.1)">⚡</div><div class="rec-body"><div class="rec-title">protect tuesday morning for deep work</div><div class="rec-text">your best completion window. block it before Tuesday fills with meetings.</div><div class="rec-badge" style="background:var(--rp);color:var(--ru)">based on your data</div></div></div>
+</div>
+
+<!-- ═══ MIND MAP ═══ -->
+<div class="screen nopb" id="s-mindmap">
+  <div class="mm-topbar">
+    <button class="mm-back" onclick="closeMindMap()">← back</button>
+    <span class="mm-title">mind map</span>
+    <button class="mdbtn" onclick="toggleMode()"></button>
+  </div>
+  <div class="mm-toolbar">
+    <button class="mm-mode-btn on" onclick="mmSetMode('drag',this)" title="drag mode">✥ drag</button>
+    <button class="mm-mode-btn" onclick="mmSetMode('connect',this)" title="connect mode">⟡ connect</button>
+    <button class="mm-tool-btn" onclick="mmAddNodeBtn()">+ node</button>
+    <button class="mm-tool-btn danger" onclick="mmClearAll()">clear</button>
+  </div>
+  <div class="mm-hint" id="mmConnectHint" style="display:none">tap two nodes to connect them</div>
+  <div class="mm-canvas" id="mmCanvas">
+    <div class="mm-empty-hint" id="mmEmptyHint">double-tap anywhere to add a thought</div>
+  </div>
 </div>
 
 <!-- SHARED NAV -->
@@ -436,6 +454,20 @@
         <button class="dom-chip" onclick="pickDom(this,'var(--te)')"><div class="ddot" style="background:var(--te)"></div>work</button>
         <button class="dom-chip" onclick="pickDom(this,'var(--pl)')"><div class="ddot" style="background:var(--pl)"></div>brain</button>
         <button class="dom-chip" onclick="pickDom(this,'var(--ru)')"><div class="ddot" style="background:var(--ru)"></div>body</button>
+      </div>
+      <div class="task-extra-row">
+        <div class="tex-field">
+          <label class="tex-label">deadline date</label>
+          <input class="tex-input" id="taskDeadlineDate" type="date"/>
+        </div>
+        <div class="tex-field">
+          <label class="tex-label">time</label>
+          <input class="tex-input" id="taskDeadlineTime" type="time"/>
+        </div>
+      </div>
+      <div class="tex-field" style="margin-bottom:12px">
+        <label class="tex-label">duration (mins, optional)</label>
+        <input class="tex-input" id="taskDuration" type="number" placeholder="e.g. 30" min="5" max="480" style="width:100%"/>
       </div>
       <button class="pbtn" onclick="addTask()">add task</button>
       <button class="pbtn sec" onclick="closePop()">cancel</button>
