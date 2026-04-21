@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>neuroplanr</title>
+<link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+<div class="app" id="app">
+
+<!-- ═══ ONBOARDING 1 — WELCOME ═══ -->
+<div class="screen nopb" id="s-ob1">
+  <div class="topbar"><span class="brand">neuro<em>planr</em></span><button class="mdbtn" onclick="toggleMode()"></button></div>
+  <div class="ob-prog"><div class="ob-pd now"></div><div class="ob-pd"></div><div class="ob-pd"></div><div class="ob-pd"></div><div class="ob-pd"></div></div>
+  <div class="ob-cnt">
+    <div class="ilwrap"><div class="ilrings"><div class="ilring ilr1"></div><div class="ilring ilr2"></div><div class="ilring ilr3"></div><div class="ilring ilr4"></div><div class="ilcore"><div class="iln">n</div></div><div class="ildot" style="width:9px;height:9px;background:var(--te);top:7px;right:18px;opacity:.65"></div><div class="ildot" style="width:7px;height:7px;background:var(--pl);bottom:10px;left:6px;opacity:.55"></div></div></div>
+    <div class="ob-ey">welcome</div>
+    <div class="ob-hl">your brain<br>isn't <em>broken.</em></div>
+    <div class="ob-body">it just needs a plan built around how you actually think — not how you think you should.<br><br>neuroplanr is <strong>shame-free</strong>, <strong>undated</strong>, and designed around how ADHD brains function.</div>
+    <div class="pcard">
+      <div class="pcard-t">the only rules here</div>
+      <div class="pitem"><div class="pbullet"></div><span class="ptext">start on any day, any week</span></div>
+      <div class="pitem"><div class="pbullet"></div><span class="ptext">skip anything without guilt</span></div>
+      <div class="pitem"><div class="pbullet"></div><span class="ptext">a 30-second check-in counts</span></div>
+      <div class="pitem"><div class="pbullet"></div><span class="ptext">coming back is always the right move</span></div>
+      <div class="pitem"><div class="pbullet"></div><span class="ptext">there is no failing this</span></div>
+    </div>
+  </div>
+  <div class="ob-foot"><button class="btn-primary" onclick="goOb(2)">let's set up your brain →</button></div>
+</div>
+
+<!-- ═══ ONBOARDING 2 — ABOUT YOUR BRAIN ═══ -->
+<div class="screen nopb" id="s-ob2">
+  <div class="topbar"><span class="brand">neuro<em>planr</em></span><button class="mdbtn" onclick="toggleMode()"></button></div>
+  <div class="ob-prog"><div class="ob-pd done"></div><div class="ob-pd now"></div><div class="ob-pd"></div><div class="ob-pd"></div><div class="ob-pd"></div></div>
+  <div class="ob-cnt">
+    <div class="ob-ey">about your brain</div>
+    <div class="ob-hl">let's map<br>how you <em>work.</em></div>
+    <div class="ob-body">not a test. a map. tap everything that feels true.</div>
+    <label class="clabel" style="margin-top:0">what should we call you?</label>
+    <input class="ninput" id="uname" type="text" placeholder="your name..." autocomplete="off"/>
+    <label class="clabel">I do my best thinking (select all that apply)</label>
+    <div class="cgroup" id="cg-peak">
+      <div class="chip" onclick="this.classList.toggle('on')">early morning</div>
+      <div class="chip on" onclick="this.classList.toggle('on')">mid-morning</div>
+      <div class="chip" onclick="this.classList.toggle('on')">afternoon</div>
+      <div class="chip" onclick="this.classList.toggle('on')">late night</div>
+      <div class="chip" onclick="this.classList.toggle('on')">it varies</div>
+    </div>
+    <label class="clabel">planning feels hardest when (select all that apply)</label>
+    <div class="cgroup" id="cg-hard">
+      <div class="chip on" onclick="this.classList.toggle('on')">I'm overwhelmed</div>
+      <div class="chip on" onclick="this.classList.toggle('on')">energy is low</div>
+      <div class="chip" onclick="this.classList.toggle('on')">too many tabs open</div>
+      <div class="chip" onclick="this.classList.toggle('on')">luteal week</div>
+      <div class="chip" onclick="this.classList.toggle('on')">after a rough day</div>
+      <div class="chip" onclick="this.classList.toggle('on')">I just forget</div>
+    </div>
+    <label class="clabel">biggest ADHD challenge right now (pick up to 2)</label>
+    <div class="cgroup" id="cg-challenge">
+      <div class="chip" onclick="togMax(this,'cg-challenge',2)">starting tasks</div>
+      <div class="chip on" onclick="togMax(this,'cg-challenge',2)">time blindness</div>
+      <div class="chip" onclick="togMax(this,'cg-challenge',2)">working memory</div>
+      <div class="chip" onclick="togMax(this,'cg-challenge',2)">emotional regulation</div>
+      <div class="chip" onclick="togMax(this,'cg-challenge',2)">hyperfocus spirals</div>
+      <div class="chip" onclick="togMax(this,'cg-challenge',2)">rejection sensitivity</div>
+    </div>
+  </div>
+  <div class="ob-foot"><button class="btn-primary" onclick="goOb(3)">next →</button><button class="btn-secondary" onclick="goOb(3)">skip for now</button></div>
+</div>
+
+<!-- ═══ ONBOARDING 3 — CHECK-IN TILES ═══ -->
+<div class="screen nopb" id="s-ob3">
+  <div class="topbar"><span class="brand">neuro<em>planr</em></span><button class="mdbtn" onclick="toggleMode()"></button></div>
+  <div class="ob-prog"><div class="ob-pd done"></div><div class="ob-pd done"></div><div class="ob-pd now"></div><div class="ob-pd"></div><div class="ob-pd"></div></div>
+  <div class="ob-cnt">
+    <div class="ob-ey">daily check-in</div>
+    <div class="ob-hl">choose your<br><em>4 tiles.</em></div>
+    <div class="ob-body">these appear every day on your home screen. pick what's useful — nothing is required.</div>
+    <div class="cilimit">select up to <strong>4</strong> — <span id="cicnt">4</span> chosen</div>
+    <div class="cirows">
+      <div class="cirow on" onclick="togCI(this)"><div class="ciico" style="background:rgba(200,120,10,.1)">⚡</div><div class="cibody"><div class="ciname">Energy level</div><div class="cidesc">low / med / high</div></div><div class="cicheck"></div></div>
+      <div class="cirow on" onclick="togCI(this)"><div class="ciico" style="background:rgba(139,69,19,.1)">🌙</div><div class="cibody"><div class="ciname">Cycle phase</div><div class="cidesc">menstrual / follicular / ovulation / luteal</div></div><div class="cicheck"></div></div>
+      <div class="cirow on" onclick="togCI(this)"><div class="ciico" style="background:rgba(107,91,139,.1)">✦</div><div class="cibody"><div class="ciname">Mood</div><div class="cidesc">rough / okay / good</div></div><div class="cicheck"></div></div>
+      <div class="cirow on" onclick="togCI(this)"><div class="ciico" style="background:rgba(92,143,58,.1)">◉</div><div class="cibody"><div class="ciname">Medication</div><div class="cidesc">taken / not yet / no meds</div></div><div class="cicheck"></div></div>
+      <div class="cirow" onclick="togCI(this)"><div class="ciico" style="background:rgba(107,91,139,.1)">◑</div><div class="cibody"><div class="ciname">Sleep quality</div><div class="cidesc">poor / okay / good</div></div><div class="cicheck"></div></div>
+      <div class="cirow" onclick="togCI(this)"><div class="ciico" style="background:rgba(192,120,64,.1)">◈</div><div class="cibody"><div class="ciname">Stress level</div><div class="cidesc">calm / moderate / overwhelmed</div></div><div class="cicheck"></div></div>
+      <div class="cirow" onclick="togCI(this)"><div class="ciico" style="background:rgba(139,69,19,.1)">◎</div><div class="cibody"><div class="ciname">Period only</div><div class="cidesc">simple on / off</div></div><div class="cicheck"></div></div>
+      <div class="cirow" onclick="togCI(this)"><div class="ciico" style="background:rgba(92,143,58,.1)">◇</div><div class="cibody"><div class="ciname">Supplements</div><div class="cidesc">taken / skipped</div></div><div class="cicheck"></div></div>
+      <div class="cirow" onclick="togCI(this)"><div class="ciico" style="background:rgba(200,120,10,.1)">◐</div><div class="cibody"><div class="ciname">Therapy / CBT</div><div class="cidesc">did I do my practice today</div></div><div class="cicheck"></div></div>
+    </div>
+  </div>
+  <div class="ob-foot"><button class="btn-primary" onclick="goOb(4)">next →</button><button class="btn-secondary" onclick="goOb(4)">use defaults</button></div>
+</div>
+
+<!-- ═══ ONBOARDING 4 — ANCHOR HABIT ═══ -->
+<div class="screen nopb" id="s-ob4">
+  <div class="topbar"><span class="brand">neuro<em>planr</em></span><button class="mdbtn" onclick="toggleMode()"></button></div>
+  <div class="ob-prog"><div class="ob-pd done"></div><div class="ob-pd done"></div><div class="ob-pd done"></div><div class="ob-pd now"></div><div class="ob-pd"></div></div>
+  <div class="ob-cnt">
+    <div class="ob-ey">build the habit</div>
+    <div class="ob-hl">anchor it to<br>something <em>real.</em></div>
+    <div class="ob-body">attach neuroplanr to something you already do every day without thinking.</div>
+    <label class="clabel" style="margin-top:0">what do you already do every day?</label>
+    <div class="cgroup" id="cg-anchor">
+      <div class="chip" onclick="pickAnchor(this,'morning coffee')">morning coffee</div>
+      <div class="chip" onclick="pickAnchor(this,'take meds')">take meds</div>
+      <div class="chip" onclick="pickAnchor(this,'brush teeth')">brush teeth</div>
+      <div class="chip" onclick="pickAnchor(this,'check my phone')">check my phone</div>
+      <div class="chip" onclick="pickAnchor(this,'sit down at my desk')">sit down at my desk</div>
+      <div class="chip" onclick="pickAnchor(this,'eat breakfast')">eat breakfast</div>
+    </div>
+    <label class="clabel">or type your own</label>
+    <input class="ainput" id="anchor" type="text" placeholder="e.g. make tea, feed the cat..."/>
+    <div class="ahint" id="ahint">put neuroplanr physically next to that thing. the cue is already there — your brain will follow.</div>
+    <label class="clabel">on a hard day, the minimum is (pick one)</label>
+    <div class="cgroup" id="cg-min">
+      <div class="chip on" onclick="pickOne(this,'cg-min')">just the check-in</div>
+      <div class="chip" onclick="pickOne(this,'cg-min')">one task added</div>
+      <div class="chip" onclick="pickOne(this,'cg-min')">brain dump anything</div>
+      <div class="chip" onclick="pickOne(this,'cg-min')">opening the app</div>
+    </div>
+  </div>
+  <div class="ob-foot"><button class="btn-primary" onclick="goOb(5)">almost there →</button><button class="btn-secondary" onclick="goOb(5)">skip for now</button></div>
+</div>
+
+<!-- ═══ ONBOARDING 5 — DOPAMINE MENU ═══ -->
+<div class="screen nopb" id="s-ob5">
+  <div class="topbar"><span class="brand">neuro<em>planr</em></span><button class="mdbtn" onclick="toggleMode()"></button></div>
+  <div class="ob-prog"><div class="ob-pd done"></div><div class="ob-pd done"></div><div class="ob-pd done"></div><div class="ob-pd done"></div><div class="ob-pd now"></div></div>
+  <div class="ob-cnt">
+    <div class="ob-ey">dopamine menu</div>
+    <div class="ob-hl">what genuinely<br><em>recharges</em> you?</div>
+    <div class="ob-body">not what should recharge you. what actually does. these show up when your energy is low.</div>
+    <label class="clabel" style="margin-top:0">add 3 things — small is fine, weird is fine</label>
+    <div class="dopwrap"><div class="dopnum">1</div><input class="dopinput" id="d1" type="text" placeholder="e.g. a walk outside..."/></div>
+    <div class="dopwrap"><div class="dopnum">2</div><input class="dopinput" id="d2" type="text" placeholder="e.g. a specific playlist..."/></div>
+    <div class="dopwrap" style="margin-bottom:4px"><div class="dopnum">3</div><input class="dopinput" id="d3" type="text" placeholder="e.g. a really good snack..."/></div>
+    <div class="suglabel">need ideas? tap to add</div>
+    <div class="sugchips">
+      <div class="sugchip" onclick="addSug(this)">walk outside</div>
+      <div class="sugchip" onclick="addSug(this)">comfort playlist</div>
+      <div class="sugchip" onclick="addSug(this)">favourite snack</div>
+      <div class="sugchip" onclick="addSug(this)">5 min of sunlight</div>
+      <div class="sugchip" onclick="addSug(this)">call a friend</div>
+      <div class="sugchip" onclick="addSug(this)">comfort show</div>
+      <div class="sugchip" onclick="addSug(this)">hot drink</div>
+      <div class="sugchip" onclick="addSug(this)">creative doodle</div>
+      <div class="sugchip" onclick="addSug(this)">move my body</div>
+      <div class="sugchip" onclick="addSug(this)">cold water</div>
+      <div class="sugchip" onclick="addSug(this)">read 2 pages</div>
+      <div class="sugchip" onclick="addSug(this)">a good smell</div>
+    </div>
+  </div>
+  <div class="ob-foot"><button class="btn-primary" onclick="finishOnboarding()">I'm ready — let's go →</button><button class="btn-secondary" onclick="finishOnboarding()">skip, I'll add later</button></div>
+</div>
+
+<!-- ═══ ONBOARDING 6 — READY ═══ -->
+<div class="screen nopb" id="s-ob6">
+  <div class="topbar"><span class="brand">neuro<em>planr</em></span><button class="mdbtn" onclick="toggleMode()"></button></div>
+  <div class="readywrap">
+    <div class="readyicon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="15" stroke="var(--ga)" stroke-width="1.5"/><path d="M9 16.5l5 5 9-9" stroke="var(--ga)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="readyname" id="rname">you're all set.</div>
+    <div class="readysub">your brain has been mapped. your plan is ready. remember — showing up at all is always enough.</div>
+    <div class="sumcard">
+      <div class="sumrow"><div class="sumico">⚡</div><div class="sumval">peak time: <strong id="spk">not set</strong></div></div>
+      <div class="sumrow"><div class="sumico">◉</div><div class="sumval">check-ins: <strong id="sci">energy, cycle, mood, meds</strong></div></div>
+      <div class="sumrow"><div class="sumico">⚓</div><div class="sumval">anchor habit: <strong id="san">not set</strong></div></div>
+      <div class="sumrow"><div class="sumico">✦</div><div class="sumval">dopamine menu: <strong id="sdop">not set yet</strong></div></div>
+    </div>
+    <button class="btn-primary" onclick="goToApp()" style="margin-bottom:0">open neuroplanr →</button>
+  </div>
+</div>
+
+<!-- ═══ HOME ═══ -->
+<div class="screen" id="s-home">
+  <div class="topbar">
+    <span style="font-family:var(--serif);font-size:16px;color:var(--t1)">neuro<em style="color:var(--gm);font-style:normal">planr</em></span>
+    <button class="mdbtn" onclick="toggleMode()"></button>
+  </div>
+  <div class="hdr"><div class="hdr-s" id="home-greet">good morning</div><div class="hdr-t" id="home-name">your <em>day</em></div></div>
+  <div class="chaos-banner" id="chaosBanner" onclick="toggleChaos()">
+    <div style="flex:1"><div class="cb-title">chaos mode</div><div class="cb-sub" id="chaosSub">strip back to what matters</div></div>
+    <div class="tog" id="chaosToggle"><div class="tog-thumb"></div></div>
+  </div>
+  <div id="normalView">
+    <div class="checkin">
+      <div class="ci" onclick="showCIpop(0)"><div class="ci-v" style="color:var(--ru)" id="civ0">—</div><div class="ci-l" id="cil0">energy</div></div>
+      <div class="ci" onclick="showCIpop(1)"><div class="ci-v" style="color:var(--tl)" id="civ1">—</div><div class="ci-l" id="cil1">cycle</div></div>
+      <div class="ci" onclick="showCIpop(2)"><div class="ci-v" style="color:var(--pll)" id="civ2">—</div><div class="ci-l" id="cil2">mood</div></div>
+      <div class="ci" onclick="showCIpop(3)"><div class="ci-v" style="color:var(--t3)" id="civ3">—</div><div class="ci-l" id="cil3">meds</div></div>
+    </div>
+    <div class="sh"><span class="sh-t">now / next / later</span><span class="sh-a" onclick="showTaskPop()">+ add task</span></div>
+    <div class="nnl">
+      <div class="nc nc-now" id="col-now"><div class="nc-h">now</div></div>
+      <div class="nc nc-next" id="col-next"><div class="nc-h">next</div></div>
+      <div class="nc nc-later" id="col-later"><div class="nc-h">later</div></div>
+    </div>
+    <div class="sh"><span class="sh-t">week by domain</span></div>
+    <div class="rings">
+      <div class="ring"><div class="ring-w"><svg width="66" height="66" viewBox="0 0 66 66"><circle cx="33" cy="33" r="27" fill="none" stroke="rgba(61,107,32,.12)" stroke-width="5"/><circle cx="33" cy="33" r="27" fill="none" stroke="var(--gm)" stroke-width="5" stroke-dasharray="102 68" stroke-linecap="round"/></svg><div class="ring-pct" style="color:var(--gm)">60%</div></div><div class="ring-n">personal</div></div>
+      <div class="ring"><div class="ring-w"><svg width="66" height="66" viewBox="0 0 66 66"><circle cx="33" cy="33" r="27" fill="none" stroke="rgba(139,69,19,.12)" stroke-width="5"/><circle cx="33" cy="33" r="27" fill="none" stroke="var(--te)" stroke-width="5" stroke-dasharray="127 43" stroke-linecap="round"/></svg><div class="ring-pct" style="color:var(--te)">75%</div></div><div class="ring-n">work</div></div>
+      <div class="ring"><div class="ring-w"><svg width="66" height="66" viewBox="0 0 66 66"><circle cx="33" cy="33" r="27" fill="none" stroke="rgba(107,91,139,.12)" stroke-width="5"/><circle cx="33" cy="33" r="27" fill="none" stroke="var(--pl)" stroke-width="5" stroke-dasharray="60 110" stroke-linecap="round"/></svg><div class="ring-pct" style="color:var(--pl)">35%</div></div><div class="ring-n">brain</div></div>
+      <div class="ring"><div class="ring-w"><svg width="66" height="66" viewBox="0 0 66 66"><circle cx="33" cy="33" r="27" fill="none" stroke="rgba(192,120,64,.12)" stroke-width="5"/><circle cx="33" cy="33" r="27" fill="none" stroke="var(--ru)" stroke-width="5" stroke-dasharray="78 92" stroke-linecap="round"/></svg><div class="ring-pct" style="color:var(--ru)">46%</div></div><div class="ring-n">body</div></div>
+    </div>
+    <div class="sh"><span class="sh-t">weekly insight</span></div>
+    <div class="insight-card"><div class="it"><div class="it-dot"></div>neuroplanr</div><div class="it-text" id="homeInsight">"Brain health tasks drop in your luteal week. Scheduling therapy earlier in your cycle could triple your follow-through."</div></div>
+    <div class="capture" onclick="showDumpPop()"><span class="cap-t">add a task or brain dump...</span><div class="mic"><svg width="14" height="18" viewBox="0 0 14 18" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="1" width="6" height="9" rx="3"/><path d="M1 9c0 3.31 2.69 6 6 6s6-2.69 6-6"/><line x1="7" y1="15" x2="7" y2="17"/><line x1="4" y1="17" x2="10" y2="17"/></svg></div></div>
+  </div>
+  <div class="chaos-view" id="chaosView">
+    <div class="chaos-hl">okay. hard day.<br>we've got you.</div>
+    <div class="chaos-s">one thing. one check-in. one win. that's all.</div>
+    <div class="chaos-block"><div class="chaos-lbl">your one thing today</div><div class="chaos-task-t" id="chaosTask">open neuroplanr</div></div>
+    <div class="chaos-block"><div class="chaos-lbl" style="margin-bottom:12px">how are you feeling?</div><div class="mood-row"><div class="mb" onclick="pickMood(this)">😔</div><div class="mb on" onclick="pickMood(this)">😐</div><div class="mb" onclick="pickMood(this)">🙂</div><div class="mb" onclick="pickMood(this)">😊</div></div></div>
+    <div class="chaos-block" style="border-left:3px solid var(--ga);padding-left:13px"><div class="chaos-lbl" style="color:var(--gm)">one thing that went okay</div><input class="well-input" type="text" placeholder="anything counts. even getting out of bed."/></div>
+  </div>
+</div>
+
+<!-- ═══ PLAN ═══ -->
+<div class="screen" id="s-plan">
+  <div class="topbar"><span style="font-family:var(--serif);font-size:16px;color:var(--t1)">neuro<em style="color:var(--gm);font-style:normal">planr</em></span><button class="mdbtn" onclick="toggleMode()"></button></div>
+  <div class="hdr"><div class="hdr-s" id="plan-sub">monday, april 21</div><div class="hdr-t">your <em>plan</em></div></div>
+  <div class="sbanner"><div class="sb-dot"></div><div class="sb-txt" id="smartBanner">Morning energy — <strong>day view</strong> suggested. Switch anytime.</div></div>
+  <div class="vsw"><button class="vsp on" id="vb-day" onclick="sv('day')">day</button><button class="vsp" id="vb-week" onclick="sv('week')">week</button><button class="vsp" id="vb-flow" onclick="sv('flow')">flow</button></div>
+
+  <div class="vw show" id="vw-day">
+    <div class="dnav"><button class="dnarr" onclick="shiftDay(-1)">‹</button><div><div class="dlbl" id="dlbl">today</div><div class="dsub" id="dsub">monday · april 21</div></div><button class="dnarr" onclick="shiftDay(1)">›</button></div>
+    <div class="tray"><div class="tray-h"><span>unscheduled</span><span class="tray-a" onclick="showTaskPop()">+ add</span></div><div class="tray-chips" id="trayChips"></div></div>
+    <div class="blocks">
+      <div class="br"><div class="bt">7 am</div><div class="bb pk"><div class="btop"><span class="bname">morning</span><span class="eb eb-p">peak energy</span></div><div class="bitem" onclick="toggleBT(this)"><div class="bcb"></div><div class="bpip" style="background:var(--te)"></div><span class="btt">dr call</span></div><span class="badd" onclick="showTaskPop()">+ add</span></div></div>
+      <div class="br"><div class="bt"></div><div class="bb buf"><span class="eb-b">— transition buffer 15 min —</span></div></div>
+      <div class="br"><div class="bt">10 am</div><div class="bb st" id="ablock"><div class="btop"><span class="bname">mid-morning</span><span class="eb eb-s">steady</span></div><div class="bempty">tap + add to schedule tasks</div><span class="badd" onclick="showTaskPop()">+ add</span></div></div>
+      <div class="br"><div class="bt"></div><div class="bb buf"><span class="eb-b">— rest + lunch 30 min —</span></div></div>
+      <div class="br"><div class="bt">1 pm</div><div class="bb st"><div class="btop"><span class="bname">afternoon</span><span class="eb eb-s">steady</span></div><div class="bempty">low-friction tasks welcome</div><span class="badd" onclick="showTaskPop()">+ add</span></div></div>
+      <div class="br"><div class="bt"></div><div class="bb buf"><span class="eb-b">— transition buffer 15 min —</span></div></div>
+      <div class="br"><div class="bt">4 pm</div><div class="bb lw"><div class="btop"><span class="bname">late afternoon</span><span class="eb eb-l">luteal · gentle</span></div><div class="bempty">low-friction only · admin · reading</div><span class="badd" onclick="showTaskPop()">+ add</span></div></div>
+      <div class="br"><div class="bt"></div><div class="bb buf"><span class="eb-b">— wind-down buffer —</span></div></div>
+      <div class="br"><div class="bt">7 pm</div><div class="bb" style="border-left:3px solid var(--gl)"><div class="btop"><span class="bname">evening</span><span class="eb" style="background:rgba(92,143,58,.1);color:var(--ga)">restore</span></div><div class="bempty">dopamine menu · no screens goal</div></div></div>
+      <div class="br"><div class="bt">flex</div><div class="bb" style="border-style:dashed"><div class="btop"><span class="bname">flex zone</span><span class="eb" style="color:var(--t3)">overflow</span></div><div class="bempty">nothing planned here on purpose</div></div></div>
+    </div>
+  </div>
+
+  <div class="vw" id="vw-week">
+    <div class="wbar">
+      <div class="wbarl">energy forecast this week</div>
+      <div class="wtrack"><div class="wseg" style="background:var(--gp);flex:1"></div><div class="wseg" style="background:var(--gl);flex:1.2"></div><div class="wseg" style="background:var(--ga);flex:1.3"></div><div class="wseg" style="background:var(--rl);flex:1.1"></div><div class="wseg" style="background:var(--ru);flex:.9"></div><div class="wseg" style="background:var(--tl);flex:.8"></div><div class="wseg" style="background:var(--tp);flex:.7"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px"><span style="font-size:9px;color:var(--t3)">Mon</span><span style="font-size:9px;color:var(--t3)">Tue</span><span style="font-size:9px;color:var(--t3)">Wed</span><span style="font-size:9px;color:var(--t3)">Thu</span><span style="font-size:9px;color:var(--t3)">Fri</span><span style="font-size:9px;color:var(--t3)">Sat</span><span style="font-size:9px;color:var(--t3)">Sun</span></div>
+      <div style="display:flex;gap:12px;margin-top:8px">
+        <span style="font-size:9px;color:var(--t3);display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:var(--ga);display:inline-block"></span>peak</span>
+        <span style="font-size:9px;color:var(--t3);display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:var(--ru);display:inline-block"></span>steady</span>
+        <span style="font-size:9px;color:var(--t3);display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:var(--tl);display:inline-block"></span>lower</span>
+      </div>
+    </div>
+    <div class="wgrid"><div class="wdays" id="weekGrid"></div></div>
+    <div class="wdead">
+      <div class="wdl2">deadlines this week</div>
+      <div class="wdi"><div class="wdd">Tue</div><div class="wdp" style="background:var(--te)"></div><div><div class="wdt">project brief submitted</div><div class="wdm">work</div></div></div>
+      <div class="wdi"><div class="wdd">Fri</div><div class="wdp" style="background:var(--te)"></div><div><div class="wdt">Q2 review presentation</div><div class="wdm">work</div></div></div>
+    </div>
+  </div>
+
+  <div class="vw" id="vw-flow">
+    <div class="flow">
+      <div class="flbl">focus on</div>
+      <div class="ftask" id="ftask">your most important task</div>
+      <div class="fdom"><div class="fdp" style="background:var(--pl)"></div>brain &amp; mental health</div>
+      <div class="twrap">
+        <svg width="160" height="160" viewBox="0 0 160 160"><circle cx="80" cy="80" r="68" fill="none" stroke="var(--bg3)" stroke-width="8"/><circle cx="80" cy="80" r="68" fill="none" stroke="var(--ga)" stroke-width="8" stroke-dasharray="427" stroke-dashoffset="107" stroke-linecap="round" id="tring" style="transition:stroke-dashoffset 1s linear"/></svg>
+        <div class="tdisp"><div class="tmins" id="tdisp">25:00</div><div class="tlbl" id="tlbl">focus</div></div>
+      </div>
+      <div class="fbtns">
+        <button class="fbtn pri" id="startBtn" onclick="toggleTimer()">start focus</button>
+        <button class="fbtn brk" onclick="doBreak()">need a break</button>
+      </div>
+      <button class="fbtn full" onclick="completeFlowTask()">✓ done with this task</button>
+      <div class="fq"><div class="fql">up next</div><div id="flowQueue"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TRACK ═══ -->
+<div class="screen" id="s-track">
+  <div class="topbar"><span style="font-family:var(--serif);font-size:16px;color:var(--t1)">neuro<em style="color:var(--gm);font-style:normal">planr</em></span><button class="mdbtn" onclick="toggleMode()"></button></div>
+  <div class="hdr"><div class="hdr-s" id="track-sub">monday, april 21</div><div class="hdr-t">your <em>track</em></div></div>
+  <div class="sh"><span class="sh-t">today's check-in</span><span class="sh-a" id="ciStatus">not done yet</span></div>
+  <div class="tci">
+    <div class="tci-top"><span class="tci-title">how are you today?</span><span class="tci-date" id="tciDate">today</span></div>
+    <div class="tci-grid">
+      <div class="tci-tile" id="ttile-0" onclick="showCIpop(0)"><div class="tci-label">energy</div><div class="tci-val" style="color:var(--ru)" id="ttv-0">tap to log</div></div>
+      <div class="tci-tile" id="ttile-1" onclick="showCIpop(1)"><div class="tci-label">cycle phase</div><div class="tci-val" style="color:var(--tl)" id="ttv-1">tap to log</div></div>
+      <div class="tci-tile" id="ttile-2" onclick="showCIpop(2)"><div class="tci-label">mood</div><div class="tci-val" style="color:var(--pll)" id="ttv-2">tap to log</div></div>
+      <div class="tci-tile" id="ttile-3" onclick="showCIpop(3)"><div class="tci-label">meds</div><div class="tci-val" style="color:var(--t3)" id="ttv-3">tap to log</div></div>
+    </div>
+    <div class="tci-hint" id="ciHint">log all 4 to complete today's check-in</div>
+  </div>
+  <div class="sh"><span class="sh-t">this week</span></div>
+  <div class="wstrip"><div class="wstrip-inner" id="weekStrip"></div></div>
+  <div class="sh"><span class="sh-t">streaks</span></div>
+  <div class="streak-row">
+    <div class="streak-card"><div class="sc-val" style="color:var(--ga)" id="streakCI">0</div><div class="sc-label">day check-in streak</div></div>
+    <div class="streak-card"><div class="sc-val" style="color:var(--te)" id="streakTasks">0</div><div class="sc-label">tasks completed</div></div>
+    <div class="streak-card"><div class="sc-val" style="color:var(--pl)" id="streakBrain">0</div><div class="sc-label">brain health tasks</div></div>
+  </div>
+  <div class="sh"><span class="sh-t">mood · 14 days</span></div>
+  <div class="mchart">
+    <div class="mc-top"><span class="mc-title">daily mood</span><div class="mc-legend"><div class="mc-leg"><div class="mc-legdot" style="background:var(--ga)"></div>good</div><div class="mc-leg"><div class="mc-legdot" style="background:var(--ru)"></div>okay</div><div class="mc-leg"><div class="mc-legdot" style="background:var(--te)"></div>rough</div></div></div>
+    <div class="mc-grid" id="moodGrid"></div>
+    <div class="mc-labels"><span class="mc-lbl">14 days ago</span><span class="mc-lbl">today</span></div>
+  </div>
+  <div class="sh"><span class="sh-t">cycle this month</span></div>
+  <div class="ctimeline">
+    <div class="ct-title">april · day 19 of 28</div>
+    <div class="ct-bar"><div class="ct-seg" style="flex:5;background:var(--tp);color:var(--te)">mens</div><div class="ct-seg" style="flex:8;background:var(--gp);color:var(--gm)">follicular</div><div class="ct-seg" style="flex:4;background:var(--pp);color:var(--pl)">ovul</div><div class="ct-seg" style="flex:11;background:var(--rp);color:var(--ru)">luteal ← today</div></div>
+    <div><div class="ct-symptom"><span class="ct-sym-label">focus</span><div class="ct-sym-bar"><div class="ct-sym-fill" style="width:35%;background:var(--ru)"></div></div><span class="ct-sym-val">low</span></div><div class="ct-symptom"><span class="ct-sym-label">energy</span><div class="ct-sym-bar"><div class="ct-sym-fill" style="width:40%;background:var(--rl)"></div></div><span class="ct-sym-val">low</span></div><div class="ct-symptom"><span class="ct-sym-label">mood stability</span><div class="ct-sym-bar"><div class="ct-sym-fill" style="width:30%;background:var(--tl)"></div></div><span class="ct-sym-val">low</span></div><div class="ct-symptom"><span class="ct-sym-label">task completion</span><div class="ct-sym-bar"><div class="ct-sym-fill" style="width:42%;background:var(--ru)"></div></div><span class="ct-sym-val">42%</span></div></div>
+    <div style="font-size:11px;color:var(--t3);line-height:1.5;padding:10px 0 0;border-top:1px solid var(--b)">luteal phase typically lowers dopamine transmission — ADHD symptoms often intensify. your data confirms this pattern.</div>
+  </div>
+  <div class="sh"><span class="sh-t">brain dump inbox</span><span class="sh-a" onclick="showDumpPop()">+ add</span></div>
+  <div style="padding:0 22px" id="dumpInbox"><div style="text-align:center;padding:24px;font-size:13px;color:var(--t3);font-style:italic">your brain dump inbox is empty</div></div>
+</div>
+
+<!-- ═══ INSIGHTS ═══ -->
+<div class="screen" id="s-insights">
+  <div class="topbar"><span style="font-family:var(--serif);font-size:16px;color:var(--t1)">neuro<em style="color:var(--gm);font-style:normal">planr</em></span><button class="mdbtn" onclick="toggleMode()"></button></div>
+  <div class="hdr"><div class="hdr-s">week of april 14–21</div><div class="hdr-t">your <em>insights</em></div></div>
+  <div class="sh"><span class="sh-t">weekly summary</span></div>
+  <div class="wsum">
+    <div class="wsum-top"><div class="wsum-label">neuroplanr · week 16</div><div class="wsum-title" id="insightHeadline">keep showing up — that's the whole game.</div></div>
+    <div class="wsum-body">
+      <div class="wsum-stats">
+        <div class="ws-stat"><div class="ws-val" style="color:var(--ga)" id="statTasks">0</div><div class="ws-lbl">tasks completed</div></div>
+        <div class="ws-stat"><div class="ws-val" style="color:var(--ru)" id="statStreak">0</div><div class="ws-lbl">check-in streak</div></div>
+        <div class="ws-stat"><div class="ws-val" style="color:var(--pl)" id="statDumps">0</div><div class="ws-lbl">brain dumps</div></div>
+      </div>
+      <div class="wsum-text" id="insightBody">complete your first check-in to start seeing your patterns here.</div>
+    </div>
+  </div>
+  <div class="sh"><span class="sh-t">your patterns</span></div>
+  <div class="ins-card ic-green" onclick="this.classList.toggle('open')">
+    <div class="ic-tag" style="color:var(--gm)"><div class="it-dot" style="background:var(--ga)"></div>peak performance window</div>
+    <div class="ic-text">"your task completion on Tuesday and Wednesday mornings is 3× higher than any other time — consistently, for 6 weeks."</div>
+    <div class="ic-action" style="color:var(--gm)">what this means for your plan</div>
+    <div class="ic-expanded"><div class="ic-exp-text">your hardest, most important tasks belong on Tuesday and Wednesday before noon. this isn't motivation — it's your biology. protect that window.</div><span class="ic-exp-chip">deep work blocks</span><span class="ic-exp-chip">creative tasks</span><span class="ic-exp-chip">important decisions</span></div>
+  </div>
+  <div class="ins-card ic-plum" onclick="this.classList.toggle('open')">
+    <div class="ic-tag" style="color:var(--pl)"><div class="it-dot" style="background:var(--pl)"></div>brain health pattern</div>
+    <div class="ic-text">"brain health tasks drop 42% in your luteal week — every month. but they're the tasks that help you most."</div>
+    <div class="ic-action" style="color:var(--pl)">research-backed suggestions</div>
+    <div class="ic-expanded"><div class="ic-exp-text">lower oestrogen in luteal phase reduces dopamine availability — making self-care feel harder exactly when you need it most.</div><span class="ic-exp-chip">schedule therapy in follicular</span><span class="ic-exp-chip">use chaos mode freely</span></div>
+  </div>
+  <div class="ins-card ic-terra" onclick="this.classList.toggle('open')">
+    <div class="ic-tag" style="color:var(--te)"><div class="it-dot" style="background:var(--te)"></div>what's working</div>
+    <div class="ic-text">"you've used chaos mode 4 times this month. every single time, you came back within 24 hours."</div>
+    <div class="ic-action" style="color:var(--te)">why this matters</div>
+    <div class="ic-expanded"><div class="ic-exp-text">returning after a disruption is the actual skill. chaos mode is your recovery mechanism working exactly as designed.</div></div>
+  </div>
+  <div class="sh"><span class="sh-t">domain balance</span></div>
+  <div class="dom-balance">
+    <div class="db-title">where your attention is going</div>
+    <div class="db-row"><span class="db-label">work</span><div class="db-track"><div class="db-fill" style="width:75%;background:var(--te)"></div></div><span class="db-val" style="color:var(--te)">75%</span></div>
+    <div class="db-row"><span class="db-label">personal</span><div class="db-track"><div class="db-fill" style="width:60%;background:var(--gm)"></div></div><span class="db-val" style="color:var(--gm)">60%</span></div>
+    <div class="db-row"><span class="db-label">body</span><div class="db-track"><div class="db-fill" style="width:46%;background:var(--ru)"></div></div><span class="db-val" style="color:var(--ru)">46%</span></div>
+    <div class="db-row"><span class="db-label">brain health</span><div class="db-track"><div class="db-fill" style="width:35%;background:var(--pl)"></div></div><span class="db-val" style="color:var(--pl)">35%</span></div>
+    <div class="db-note"><strong>brain health</strong> has been lowest for 3 weeks. one small brain health task per day in follicular phase could shift this significantly.</div>
+  </div>
+  <div class="sh"><span class="sh-t">suggested for next week</span></div>
+  <div class="rec-card"><div class="rec-icon" style="background:rgba(92,143,58,.1)">🌿</div><div class="rec-body"><div class="rec-title">schedule therapy in follicular phase</div><div class="rec-text">your therapy completion rate in follicular is 3× higher than luteal. next follicular window starts in ~9 days.</div><div class="rec-badge" style="background:var(--gp);color:var(--gm)">research-backed</div></div></div>
+  <div class="rec-card"><div class="rec-icon" style="background:rgba(107,91,139,.1)">◉</div><div class="rec-body"><div class="rec-title">add one brain health task this week</div><div class="rec-text">just one. journaling, a walk, your CBT exercise. small consistent actions outperform big irregular ones.</div><div class="rec-badge" style="background:var(--pp);color:var(--pl)">low effort · high impact</div></div></div>
+  <div class="rec-card" style="margin-bottom:0"><div class="rec-icon" style="background:rgba(192,120,64,.1)">⚡</div><div class="rec-body"><div class="rec-title">protect tuesday morning for deep work</div><div class="rec-text">your best completion window. block it before Tuesday fills with meetings.</div><div class="rec-badge" style="background:var(--rp);color:var(--ru)">based on your data</div></div></div>
+</div>
+
+<!-- SHARED NAV -->
+<nav class="nav" id="mainNav" style="display:none">
+  <div class="ni" id="nav-home" onclick="goTab('home')"><div class="nic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><span class="nil">home</span></div>
+  <div class="ni" id="nav-plan" onclick="goTab('plan')"><div class="nic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="nil">plan</span></div>
+  <div class="ni" id="nav-track" onclick="goTab('track')"><div class="nic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><span class="nil">track</span></div>
+  <div class="ni" id="nav-insights" onclick="goTab('insights')"><div class="nic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div><span class="nil">insights</span></div>
+</nav>
+</div><!-- /app -->
+
+<!-- DONE FLASH -->
+<div class="dfl" id="dfl"><div class="dfi">done ✓</div></div>
+
+<!-- OVERLAY -->
+<div class="ov" id="ov" onclick="closePop(event)">
+  <div class="pop">
+    <div class="dpill"></div>
+    <div id="p-energy" style="display:none">
+      <div class="pop-t">energy today</div>
+      <div class="pop-opts">
+        <button class="popt" onclick="setCIval(0,'low','var(--tl)',this)"><div class="popt-v" style="color:var(--tl)">low</div><div class="popt-l">depleted</div></button>
+        <button class="popt" onclick="setCIval(0,'med','var(--ru)',this)"><div class="popt-v" style="color:var(--ru)">med</div><div class="popt-l">steady</div></button>
+        <button class="popt" onclick="setCIval(0,'high','var(--ga)',this)"><div class="popt-v" style="color:var(--ga)">high</div><div class="popt-l">firing</div></button>
+      </div>
+      <button class="pbtn" onclick="closePop()">done</button>
+    </div>
+    <div id="p-cycle" style="display:none">
+      <div class="pop-t">cycle phase</div>
+      <div class="ph-grid">
+        <button class="ph-btn" onclick="setCIval(1,'menstrual','var(--tl)',this)"><div class="ph-v" style="color:var(--tl)">menstrual</div><div class="ph-l">days 1–5</div></button>
+        <button class="ph-btn" onclick="setCIval(1,'follicular','var(--ga)',this)"><div class="ph-v" style="color:var(--ga)">follicular</div><div class="ph-l">days 6–13</div></button>
+        <button class="ph-btn" onclick="setCIval(1,'ovulation','var(--pll)',this)"><div class="ph-v" style="color:var(--pll)">ovulation</div><div class="ph-l">days 14–17</div></button>
+        <button class="ph-btn" onclick="setCIval(1,'luteal','var(--rl)',this)"><div class="ph-v" style="color:var(--rl)">luteal</div><div class="ph-l">days 18–28</div></button>
+      </div>
+      <button class="pbtn" onclick="closePop()">done</button>
+    </div>
+    <div id="p-mood" style="display:none">
+      <div class="pop-t">mood today</div>
+      <div class="pop-opts">
+        <button class="popt" onclick="setCIval(2,'–','var(--te)',this)"><div class="popt-v" style="color:var(--te)">–</div><div class="popt-l">rough</div></button>
+        <button class="popt" onclick="setCIval(2,'~','var(--pll)',this)"><div class="popt-v" style="color:var(--pll)">~</div><div class="popt-l">okay</div></button>
+        <button class="popt" onclick="setCIval(2,'+','var(--ga)',this)"><div class="popt-v" style="color:var(--ga)">+</div><div class="popt-l">good</div></button>
+      </div>
+      <button class="pbtn" onclick="closePop()">done</button>
+    </div>
+    <div id="p-meds" style="display:none">
+      <div class="pop-t">meds today</div>
+      <div class="pop-opts">
+        <button class="popt" onclick="setCIval(3,'✓','var(--ga)',this)"><div class="popt-v" style="color:var(--ga)">✓</div><div class="popt-l">taken</div></button>
+        <button class="popt" onclick="setCIval(3,'—','var(--t3)',this)"><div class="popt-v" style="color:var(--t3)">—</div><div class="popt-l">not yet</div></button>
+        <button class="popt" onclick="setCIval(3,'skip','var(--ta)',this)"><div class="popt-v" style="color:var(--ta)">skip</div><div class="popt-l">no meds</div></button>
+      </div>
+      <button class="pbtn" onclick="closePop()">done</button>
+    </div>
+    <div id="p-task" style="display:none">
+      <div class="pop-t">add a task</div>
+      <input class="tinput" id="taskInput" type="text" placeholder="what needs doing..."/>
+      <div class="col-row">
+        <button class="col-chip on" id="cc-now" onclick="pickCol('now',this)">now</button>
+        <button class="col-chip" id="cc-next" onclick="pickCol('next',this)">next</button>
+        <button class="col-chip" id="cc-later" onclick="pickCol('later',this)">later</button>
+        <button class="col-chip" id="cc-block" onclick="pickCol('block',this)">block</button>
+      </div>
+      <div class="dom-row">
+        <button class="dom-chip on" onclick="pickDom(this,'var(--gm)')"><div class="ddot" style="background:var(--gm)"></div>personal</button>
+        <button class="dom-chip" onclick="pickDom(this,'var(--te)')"><div class="ddot" style="background:var(--te)"></div>work</button>
+        <button class="dom-chip" onclick="pickDom(this,'var(--pl)')"><div class="ddot" style="background:var(--pl)"></div>brain</button>
+        <button class="dom-chip" onclick="pickDom(this,'var(--ru)')"><div class="ddot" style="background:var(--ru)"></div>body</button>
+      </div>
+      <button class="pbtn" onclick="addTask()">add task</button>
+      <button class="pbtn sec" onclick="closePop()">cancel</button>
+    </div>
+    <div id="p-dump" style="display:none">
+      <div class="pop-t">brain dump</div>
+      <div class="pop-sub">no format. no judgement. just get it out.</div>
+      <textarea id="dumpTxt" placeholder="everything clogging your brain goes here..." style="width:100%;background:var(--bg2);border:1px solid var(--b);border-radius:12px;padding:13px 14px;color:var(--t1);font-family:var(--sans);font-size:13px;outline:none;min-height:100px;resize:none;margin-bottom:12px;display:block;line-height:1.5"></textarea>
+      <button class="pbtn" onclick="saveDump()">save to inbox</button>
+      <button class="pbtn sec" onclick="closePop()">cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
