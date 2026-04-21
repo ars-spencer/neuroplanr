@@ -208,7 +208,7 @@ function updateInsightHeadline(name, streak, tasks) {
 
 // ── TABS ──
 function goTab(tab) {
-  ['home','plan','track','insights'].forEach(t => {
+  ['home','plan','track','insights','map'].forEach(t => {
     const s = document.getElementById('s-'+t);
     const n = document.getElementById('nav-'+t);
     if (s) s.classList.toggle('show', t === tab);
@@ -220,6 +220,7 @@ function goTab(tab) {
   });
   if (tab === 'track') refreshTrackTab();
   if (tab === 'insights') refreshInsightsTab();
+  if (tab === 'map') { mmLoadData(); }
   window.scrollTo(0, 0);
 }
 
@@ -490,9 +491,10 @@ function addTask() {
   } else {
     const col = document.getElementById('col-'+selCol);
     if (col) {
-      const t = document.createElement('div'); t.className = 'task'; t.dataset.id = task.id; t.onclick = function() { toggleTask(this); };
+      const t = document.createElement('div'); t.className = 'task'; t.dataset.id = task.id;
+      t.onclick = function(e) { if(!e.target.classList.contains('task-edit-btn')) toggleTask(this); };
       const dlFlag = deadlineDate ? `<span class="task-dl-flag">📅 ${formatDeadline(deadlineDate, deadlineTime)}</span>` : '';
-      t.innerHTML = `<div class="tcb"></div><div class="pip" style="background:${selDom}"></div><span class="tt">${txt}</span>${dlFlag}`;
+      t.innerHTML = `<div class="tcb"></div><div class="pip" style="background:${selDom}"></div><span class="tt">${txt}</span>${dlFlag}<button class="task-edit-btn" onclick="openTaskEdit(this.closest('.task'),event)" title="edit">···</button>`;
       col.appendChild(t);
     }
     const chip = document.createElement('div'); chip.className = 'tray-chip';
@@ -585,9 +587,10 @@ function renderSavedTask(t) {
   if (t.blockSlot) { addTaskToBlock(t, t.blockSlot); return; }
   const col = document.getElementById('col-'+t.col);
   if (!col) return;
-  const el = document.createElement('div'); el.className = 'task'; el.dataset.id = t.id; el.onclick = function() { toggleTask(this); };
+  const el = document.createElement('div'); el.className = 'task'; el.dataset.id = t.id;
+  el.onclick = function(e) { if(!e.target.classList.contains('task-edit-btn')) toggleTask(this); };
   const dlFlag = t.deadlineDate ? `<span class="task-dl-flag">📅 ${formatDeadline(t.deadlineDate, t.deadlineTime)}</span>` : '';
-  el.innerHTML = `<div class="tcb${t.done?' done':''}"></div><div class="pip" style="background:${t.dom}"></div><span class="tt${t.done?' done':''}">${t.text}</span>${dlFlag}`;
+  el.innerHTML = `<div class="tcb${t.done?' done':''}"></div><div class="pip" style="background:${t.dom}"></div><span class="tt${t.done?' done':''}">${t.text}</span>${dlFlag}<button class="task-edit-btn" onclick="openTaskEdit(this.closest('.task'),event)" title="edit">···</button>`;
   col.appendChild(el);
 }
 
@@ -624,6 +627,86 @@ function toggleBT(el) {
   el.querySelector('.bcb').classList.toggle('done');
   el.querySelector('.btt').classList.toggle('done');
   flash();
+}
+
+// ── TASK EDIT / DELETE ──
+let editingTaskId = null;
+let editingTaskEl = null;
+let editingTaskDom = 'var(--gm)';
+
+function openTaskEdit(el, e) {
+  e.stopPropagation();
+  editingTaskId = parseInt(el.dataset.id);
+  editingTaskEl = el;
+  const tasks = LS.get('tasks') || [];
+  const task = tasks.find(t => t.id === editingTaskId);
+  if (!task) return;
+  editingTaskDom = task.dom || 'var(--gm)';
+  document.getElementById('editTaskInput').value = task.text;
+  // highlight current domain chip
+  const domMap = { 'var(--gm)':'edc-personal','var(--te)':'edc-work','var(--pl)':'edc-brain','var(--ru)':'edc-body' };
+  document.querySelectorAll('#p-task-edit .dom-chip').forEach(b => b.classList.remove('on'));
+  const activeChip = document.getElementById(domMap[task.dom]);
+  if (activeChip) activeChip.classList.add('on');
+  showPop('p-task-edit');
+  setTimeout(() => document.getElementById('editTaskInput')?.focus(), 300);
+}
+
+function pickEditDom(btn, color) {
+  editingTaskDom = color;
+  document.querySelectorAll('#p-task-edit .dom-chip').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function saveTaskEdit() {
+  const txt = document.getElementById('editTaskInput')?.value.trim();
+  if (!txt || !editingTaskId) return;
+  const tasks = LS.get('tasks') || [];
+  const task = tasks.find(t => t.id === editingTaskId);
+  if (task) {
+    task.text = txt;
+    task.dom = editingTaskDom;
+    LS.set('tasks', tasks);
+  }
+  // update DOM element
+  if (editingTaskEl) {
+    const tt = editingTaskEl.querySelector('.tt');
+    const pip = editingTaskEl.querySelector('.pip');
+    if (tt) tt.textContent = txt;
+    if (pip) pip.style.background = editingTaskDom;
+  }
+  editingTaskId = null; editingTaskEl = null;
+  closePop();
+  updateDomainRings();
+}
+
+function deleteTask() {
+  if (!editingTaskId) return;
+  let tasks = LS.get('tasks') || [];
+  const task = tasks.find(t => t.id === editingTaskId);
+  // adjust counts if it was done
+  if (task && task.done) {
+    const count = Math.max(0, (LS.get('tasksDoneCount')||0) - 1);
+    LS.set('tasksDoneCount', count);
+    setEl('streakTasks', count);
+    setEl('statTasks', count);
+    if (task.dom === 'var(--pl)') {
+      const bc = Math.max(0, (LS.get('brainTasksCount')||0) - 1);
+      LS.set('brainTasksCount', bc);
+      setEl('streakBrain', bc);
+    }
+  }
+  tasks = tasks.filter(t => t.id !== editingTaskId);
+  LS.set('tasks', tasks);
+  if (editingTaskEl) {
+    editingTaskEl.style.opacity = '0';
+    editingTaskEl.style.transform = 'translateX(20px)';
+    editingTaskEl.style.transition = 'all .25s';
+    setTimeout(() => editingTaskEl.remove(), 250);
+  }
+  editingTaskId = null; editingTaskEl = null;
+  closePop();
+  updateDomainRings();
 }
 
 // ── BRAIN DUMP ──
@@ -870,15 +953,13 @@ function initMindMap() {
 }
 
 function openMindMap(seedText) {
-  showScreen('s-mindmap');
-  // keep nav visible
-  const nav = document.getElementById('mainNav');
-  if (nav) nav.style.display = 'flex';
-  mmLoadData();
+  goTab('map');
   if (seedText) {
     const canvas = document.getElementById('mmCanvas');
-    const rect = canvas ? canvas.getBoundingClientRect() : { width: 390, height: 600 };
-    mmAddNode(seedText, Math.round(rect.width/2 - mm.panX - 70), Math.round(rect.height/2 - mm.panY - 40));
+    const rect = canvas ? canvas.getBoundingClientRect() : { width: 390, height: 500 };
+    setTimeout(() => {
+      mmAddNode(seedText, Math.round(rect.width/2 - mm.panX - 70), Math.round(rect.height/2 - mm.panY - 40));
+    }, 100);
   }
 }
 
@@ -1038,4 +1119,35 @@ function sendToMindMap(btn) {
   const txt = item.querySelector('.di-text').textContent.slice(0, 100);
   removeItem(item);
   openMindMap(txt);
+}
+
+function mmSeedFromDumps() {
+  const dumps = LS.get('dumps') || [];
+  if (!dumps.length) {
+    alert('no brain dumps yet — add some first!');
+    return;
+  }
+  const canvas = document.getElementById('mmCanvas');
+  const rect = canvas ? canvas.getBoundingClientRect() : { width:390, height:500 };
+  const cx = rect.width / 2 - mm.panX;
+  const cy = rect.height / 2 - mm.panY;
+  // only seed dumps not already on the map (match by text)
+  const existing = mm.nodes.map(n => n.text.trim());
+  let added = 0;
+  dumps.forEach((d, i) => {
+    if (existing.includes(d.text.trim())) return;
+    const angle = (i / dumps.length) * Math.PI * 2;
+    const radius = 110 + Math.random() * 40;
+    const x = Math.round(cx + Math.cos(angle) * radius - 70);
+    const y = Math.round(cy + Math.sin(angle) * radius - 22);
+    mm.nodes.push({ id: mm.nextId++, text: d.text.slice(0,80), x, y, dumpId: d.id });
+    added++;
+  });
+  if (added === 0) {
+    // all already seeded — just rerender
+  }
+  saveMM();
+  mmRerender();
+  const hint = document.getElementById('mmEmptyHint');
+  if (hint) hint.style.display = 'none';
 }
