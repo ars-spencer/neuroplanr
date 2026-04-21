@@ -225,20 +225,9 @@
   <div class="vsw"><button class="vsp on" id="vb-day" onclick="sv('day')">day</button><button class="vsp" id="vb-week" onclick="sv('week')">week</button><button class="vsp" id="vb-flow" onclick="sv('flow')">flow</button></div>
 
   <div class="vw show" id="vw-day">
-    <div class="dnav"><button class="dnarr" onclick="shiftDay(-1)">‹</button><div><div class="dlbl" id="dlbl">today</div><div class="dsub" id="dsub">monday · april 21</div></div><button class="dnarr" onclick="shiftDay(1)">›</button></div>
-    <div class="tray"><div class="tray-h"><span>unscheduled</span><span class="tray-a" onclick="showTaskPop()">+ add</span></div><div class="tray-chips" id="trayChips"></div></div>
-    <div class="blocks">
-      <div class="br"><div class="bt">7 am</div><div class="bb pk" id="block-7am"><div class="btop"><span class="bname">morning</span><span class="eb eb-p">peak energy</span></div><div class="bitem" onclick="toggleBT(this)"><div class="bcb"></div><div class="bpip" style="background:var(--te)"></div><span class="btt">dr call</span></div><span class="badd" onclick="showTaskPop('block-7am')">+ add</span></div></div>
-      <div class="br"><div class="bt"></div><div class="bb buf"><span class="eb-b">— transition buffer 15 min —</span></div></div>
-      <div class="br"><div class="bt">10 am</div><div class="bb st" id="ablock"><div class="btop"><span class="bname">mid-morning</span><span class="eb eb-s">steady</span></div><div class="bempty">tap + add to schedule tasks</div><span class="badd" onclick="showTaskPop('ablock')">+ add</span></div></div>
-      <div class="br"><div class="bt"></div><div class="bb buf"><span class="eb-b">— rest + lunch 30 min —</span></div></div>
-      <div class="br"><div class="bt">1 pm</div><div class="bb st" id="block-1pm"><div class="btop"><span class="bname">afternoon</span><span class="eb eb-s">steady</span></div><div class="bempty">low-friction tasks welcome</div><span class="badd" onclick="showTaskPop('block-1pm')">+ add</span></div></div>
-      <div class="br"><div class="bt"></div><div class="bb buf"><span class="eb-b">— transition buffer 15 min —</span></div></div>
-      <div class="br"><div class="bt">4 pm</div><div class="bb lw" id="block-4pm"><div class="btop"><span class="bname">late afternoon</span><span class="eb eb-l">luteal · gentle</span></div><div class="bempty">low-friction only · admin · reading</div><span class="badd" onclick="showTaskPop('block-4pm')">+ add</span></div></div>
-      <div class="br"><div class="bt"></div><div class="bb buf"><span class="eb-b">— wind-down buffer —</span></div></div>
-      <div class="br"><div class="bt">7 pm</div><div class="bb" style="border-left:3px solid var(--gl)" id="block-7pm"><div class="btop"><span class="bname">evening</span><span class="eb" style="background:rgba(92,143,58,.1);color:var(--ga)">restore</span></div><div class="bempty">dopamine menu · no screens goal</div><span class="badd" onclick="showTaskPop('block-7pm')">+ add</span></div></div>
-      <div class="br"><div class="bt">flex</div><div class="bb" style="border-style:dashed" id="block-flex"><div class="btop"><span class="bname">flex zone</span><span class="eb" style="color:var(--t3)">overflow</span></div><div class="bempty">nothing planned here on purpose</div><span class="badd" onclick="showTaskPop('block-flex')">+ add</span></div></div>
-    </div>
+    <div class="dnav"><button class="dnarr" onclick="shiftDay(-1)">‹</button><div><div class="dlbl" id="dlbl">today</div><div class="dsub" id="dsub"></div></div><button class="dnarr" onclick="shiftDay(1)">›</button></div>
+    <div class="carried-banner" id="carriedBanner" style="display:none"><span class="carried-dot">↩</span><span id="carriedMsg">tasks carried forward from yesterday</span></div>
+    <div class="blocks" id="dayBlocks"></div>
   </div>
 
   <div class="vw" id="vw-week">
@@ -484,6 +473,19 @@
       <button class="pbtn" style="background:rgba(139,69,19,.12);color:var(--te);border:1px solid rgba(139,69,19,.2)" onclick="deleteTask()">delete task</button>
       <button class="pbtn sec" onclick="closePop()">cancel</button>
     </div>
+    <div id="p-block-add" style="display:none">
+      <div class="pop-t" id="blockPopTitle">add to block</div>
+      <input class="tinput" id="blockTaskInput" type="text" placeholder="what are you working on..."/>
+      <div class="dom-row">
+        <button class="dom-chip on" id="bdc-personal" onclick="pickBlockDom(this,'var(--gm)')"><div class="ddot" style="background:var(--gm)"></div>personal</button>
+        <button class="dom-chip" id="bdc-work" onclick="pickBlockDom(this,'var(--te)')"><div class="ddot" style="background:var(--te)"></div>work</button>
+        <button class="dom-chip" id="bdc-brain" onclick="pickBlockDom(this,'var(--pl)')"><div class="ddot" style="background:var(--pl)"></div>brain</button>
+        <button class="dom-chip" id="bdc-body" onclick="pickBlockDom(this,'var(--ru)')"><div class="ddot" style="background:var(--ru)"></div>body</button>
+      </div>
+      <button class="pbtn" onclick="addBlockTask()">add to block</button>
+      <button class="pbtn sec" onclick="closePop()">cancel</button>
+    </div>
+    <div id="p-dump" style="display:none">
       <div class="pop-t">brain dump</div>
       <div class="pop-sub">no format. no judgement. just get it out.</div>
       <textarea id="dumpTxt" placeholder="everything clogging your brain goes here..." style="width:100%;background:var(--bg2);border:1px solid var(--b);border-radius:12px;padding:13px 14px;color:var(--t1);font-family:var(--sans);font-size:13px;outline:none;min-height:100px;resize:none;margin-bottom:12px;display:block;line-height:1.5"></textarea>
