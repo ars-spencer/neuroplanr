@@ -1,6 +1,8 @@
 // ─────────────────────────────────────────────────────
-// NEUROPLANR — app.js
-// localStorage persistence + all app logic
+// NEUROPLANR — app.js  v2
+// Bug fixes: chaos mode, data flow, domain rings, task persistence,
+//            week view deadlines, track real data, insights real data
+// New features: mind map, deadline tasks, time-block scheduling
 // ─────────────────────────────────────────────────────
 
 // ── STORAGE HELPERS ──
@@ -17,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
   buildWeekGrid();
   buildWeekStrip();
   buildMoodGrid();
+  initMindMap();
   if (LS.get('onboardingDone')) {
     loadAllData();
     showMainNav(true);
@@ -40,7 +43,6 @@ function tickClock() {
   setEl('plan-sub', dateLong);
   setEl('track-sub', dateLong);
   setEl('tciDate', dateShort);
-  // smart banner
   const banner = document.getElementById('smartBanner');
   if (banner) {
     if (h < 10) banner.innerHTML = 'Morning + fresh start — <strong>day view</strong> suggested.';
@@ -79,9 +81,7 @@ function togMax(el, gid, max) {
   const grp = document.getElementById(gid);
   if (!grp) return;
   const on = [...grp.querySelectorAll('.chip.on')];
-  if (!el.classList.contains('on') && on.length >= max) {
-    shake(el); return;
-  }
+  if (!el.classList.contains('on') && on.length >= max) { shake(el); return; }
   el.classList.toggle('on');
 }
 
@@ -131,7 +131,6 @@ function finishOnboarding() {
   LS.set('dopamineMenu', dop);
   LS.set('onboardingDone', true);
 
-  // build summary screen
   const rname = document.getElementById('rname');
   if (rname) rname.innerHTML = name ? `you're all set, <em>${name}.</em>` : "you're all set.";
   setEl('spk', peak.length ? peak.join(', ') : 'not set');
@@ -151,16 +150,13 @@ function goToApp() {
 
 // ── LOAD ALL PERSISTED DATA ──
 function loadAllData() {
-  // name
   const name = LS.get('userName') || 'you';
   const nameEl = document.getElementById('home-name');
   if (nameEl) nameEl.innerHTML = `hey, <em>${name}</em>`;
 
-  // tasks
   const tasks = LS.get('tasks') || [];
   tasks.forEach(t => renderSavedTask(t));
 
-  // today's check-ins
   const today = new Date().toDateString();
   const ciDay = LS.get('ciDay');
   if (ciDay === today) {
@@ -171,12 +167,10 @@ function loadAllData() {
     });
     updateCIStatus();
   } else {
-    // new day — reset
     LS.set('todayCI', {});
     LS.set('ciDay', today);
   }
 
-  // brain dumps
   const dumps = LS.get('dumps') || [];
   const inbox = document.getElementById('dumpInbox');
   if (inbox && dumps.length) {
@@ -184,7 +178,6 @@ function loadAllData() {
     dumps.forEach(d => renderDumpItem(d, inbox));
   }
 
-  // streaks
   const streak = LS.get('ciStreak') || 0;
   const tasksDone = LS.get('tasksDoneCount') || 0;
   const brainDone = LS.get('brainTasksCount') || 0;
@@ -195,18 +188,20 @@ function loadAllData() {
   setEl('statStreak', streak);
   setEl('statDumps', dumps.length);
 
-  // insight headline
+  updateDomainRings();
+  rebuildWeekStrip();
+  rebuildMoodGrid();
   updateInsightHeadline(name, streak, tasksDone);
+  renderWeekDeadlines();
+  updateDomainBalance();
 }
 
 function updateInsightHeadline(name, streak, tasks) {
-  const headlines = [
-    'keep showing up — that\'s the whole game.',
-    `${streak > 0 ? streak+' days in a row. that\'s real.' : 'every day you open this is a win.'}`,
-    `${tasks > 5 ? tasks+' tasks done. your brain is working.' : 'start small. start anywhere.'}`
-  ];
   const el = document.getElementById('insightHeadline');
-  if (el) el.textContent = headlines[Math.min(streak, headlines.length-1)];
+  let msg = 'keep showing up — that\'s the whole game.';
+  if (streak > 0) msg = streak + ' day' + (streak>1?'s':'')+' in a row. that\'s real.';
+  else if (tasks > 5) msg = tasks+' tasks done. your brain is working.';
+  if (el) el.textContent = msg;
   const body = document.getElementById('insightBody');
   if (body && streak > 0) body.textContent = `you've checked in ${streak} day${streak>1?'s':''} in a row and completed ${tasks} task${tasks!==1?'s':''} this week. your patterns are starting to emerge.`;
 }
@@ -223,10 +218,12 @@ function goTab(tab) {
       if (icon) icon.setAttribute('stroke', t === tab ? 'var(--gm)' : 'var(--t3)');
     }
   });
+  if (tab === 'track') refreshTrackTab();
+  if (tab === 'insights') refreshInsightsTab();
   window.scrollTo(0, 0);
 }
 
-// ── CHAOS MODE ──
+// ── FIX 1: CHAOS MODE — replaces normal view, doesn't stack ──
 let chaosOn = false;
 function toggleChaos() {
   chaosOn = !chaosOn;
@@ -234,12 +231,12 @@ function toggleChaos() {
   document.getElementById('chaosBanner').classList.toggle('on', chaosOn);
   const nv = document.getElementById('normalView');
   const cv = document.getElementById('chaosView');
-  if (nv) nv.classList.toggle('hidden', chaosOn);
-  if (cv) cv.classList.toggle('show', chaosOn);
+  if (nv) nv.style.display = chaosOn ? 'none' : '';
+  if (cv) cv.style.display = chaosOn ? 'block' : 'none';
   setEl('chaosSub', chaosOn ? 'tap again to return to full view' : 'strip back to what matters');
   if (chaosOn) {
     const first = document.querySelector('#col-now .tt:not(.done)');
-    if (first) setEl('chaosTask', first.textContent);
+    setEl('chaosTask', first ? first.textContent : 'one small thing. your choice.');
   }
   LS.set('chaosUsed', (LS.get('chaosUsed') || 0) + (chaosOn ? 1 : 0));
 }
@@ -249,20 +246,19 @@ function pickMood(el) {
   el.classList.add('on');
 }
 
-// ── CHECK-INS ──
+// ── FIX 2 & 6: CHECK-INS ──
 const CI_POPS = ['energy','cycle','mood','meds'];
 
 function showCIpop(idx) { showPop('p-'+CI_POPS[idx]); }
 
 function setCIval(idx, val, color, btn) {
   updateCIDisplay(idx, val, color);
-  // save
   const ci = LS.get('todayCI') || {};
   ci[idx] = { val, color };
   LS.set('todayCI', ci);
   LS.set('ciDay', new Date().toDateString());
   updateCIStatus();
-  // deselect siblings
+  saveCIToHistory(idx, val, color);
   if (btn) {
     const parent = btn.closest('.pop-opts,.ph-grid');
     if (parent) parent.querySelectorAll('.popt,.ph-btn').forEach(b => b.classList.remove('on'));
@@ -270,11 +266,17 @@ function setCIval(idx, val, color, btn) {
   }
 }
 
+function saveCIToHistory(idx, val, color) {
+  const today = new Date().toDateString();
+  const hist = LS.get('ciHistory') || {};
+  if (!hist[today]) hist[today] = {};
+  hist[today][idx] = { val, color };
+  LS.set('ciHistory', hist);
+}
+
 function updateCIDisplay(idx, val, color) {
-  // home tiles
   const hv = document.getElementById('civ'+idx);
   if (hv) { hv.textContent = val; hv.style.color = color; }
-  // track tiles
   const tv = document.getElementById('ttv-'+idx);
   const tile = document.getElementById('ttile-'+idx);
   if (tv) { tv.textContent = val; tv.style.color = color; }
@@ -289,7 +291,6 @@ function updateCIStatus() {
   if (done >= 4) {
     if (el) { el.textContent = 'complete ✓'; el.style.color = 'var(--ga)'; }
     if (hint) hint.textContent = 'all logged for today — great work.';
-    // increment streak
     const lastDay = LS.get('lastCIDay');
     const today = new Date().toDateString();
     if (lastDay !== today) {
@@ -306,10 +307,140 @@ function updateCIStatus() {
   }
 }
 
-// ── TASKS ──
-let selCol = 'now', selDom = 'var(--gm)';
+// ── FIX 6: TRACK TAB — real data ──
+function refreshTrackTab() {
+  const today = new Date().toDateString();
+  if (LS.get('ciDay') === today) {
+    const ci = LS.get('todayCI') || {};
+    Object.keys(ci).forEach(idx => updateCIDisplay(parseInt(idx), ci[idx].val, ci[idx].color));
+  }
+  updateCIStatus();
+  const streak = LS.get('ciStreak') || 0;
+  const tasksDone = LS.get('tasksDoneCount') || 0;
+  const brainDone = LS.get('brainTasksCount') || 0;
+  setEl('streakCI', streak);
+  setEl('streakTasks', tasksDone);
+  setEl('streakBrain', brainDone);
+  rebuildWeekStrip();
+  rebuildMoodGrid();
+  const dumps = LS.get('dumps') || [];
+  const inbox = document.getElementById('dumpInbox');
+  if (inbox) {
+    inbox.innerHTML = '';
+    if (dumps.length) dumps.forEach(d => renderDumpItem(d, inbox));
+    else inbox.innerHTML = '<div style="text-align:center;padding:24px;font-size:13px;color:var(--t3);font-style:italic">your brain dump inbox is empty</div>';
+  }
+}
 
-function showTaskPop() {
+// week strip from real CI history
+function rebuildWeekStrip() {
+  const strip = document.getElementById('weekStrip');
+  if (!strip) return;
+  strip.innerHTML = '';
+  const hist = LS.get('ciHistory') || {};
+  const today = new Date();
+  const energyColor = { high:'var(--ga)', med:'var(--ru)', low:'var(--tl)' };
+  const moodColor = { '+':'var(--ga)', '~':'var(--ru)', '–':'var(--te)' };
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(today.getDate() - i);
+    const key = d.toDateString();
+    const isToday = i === 0;
+    const dayCI = hist[key] || {};
+    const ec = energyColor[dayCI[0]?.val] || 'var(--bg3)';
+    const mc = moodColor[dayCI[2]?.val] || 'var(--bg3)';
+    const div = document.createElement('div');
+    div.className = 'wday-s' + (isToday ? ' active' : '');
+    div.innerHTML = `<span class="wday-l">${['M','T','W','T','F','S','S'][d.getDay()]}</span><span class="wday-d">${d.getDate()}</span><div class="wday-dots-s"><div class="wdot-s" style="background:${ec}"></div><div class="wdot-s" style="background:${mc}"></div></div>`;
+    strip.appendChild(div);
+  }
+}
+
+// mood grid from real CI history
+function rebuildMoodGrid() {
+  const grid = document.getElementById('moodGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const hist = LS.get('ciHistory') || {};
+  const moodColor = { '+':'var(--ga)', '~':'var(--ru)', '–':'var(--te)' };
+  const today = new Date();
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(); d.setDate(today.getDate() - i);
+    const key = d.toDateString();
+    const mVal = (hist[key] || {})[2]?.val;
+    const cell = document.createElement('div');
+    cell.className = 'mc-cell';
+    cell.style.background = moodColor[mVal] || 'var(--bg3)';
+    cell.title = d.toLocaleDateString([], {month:'short', day:'numeric'}) + (mVal ? ' · '+mVal : ' · not logged');
+    grid.appendChild(cell);
+  }
+}
+
+// ── FIX 7: INSIGHTS TAB — real data ──
+function refreshInsightsTab() {
+  const streak = LS.get('ciStreak') || 0;
+  const tasksDone = LS.get('tasksDoneCount') || 0;
+  const dumps = LS.get('dumps') || [];
+  const name = LS.get('userName') || 'you';
+  setEl('statTasks', tasksDone);
+  setEl('statStreak', streak);
+  setEl('statDumps', dumps.length);
+  updateInsightHeadline(name, streak, tasksDone);
+  updateDomainBalance();
+  const chaosUsed = LS.get('chaosUsed') || 0;
+  const chaosCard = document.getElementById('chaosInsightText');
+  if (chaosCard && chaosUsed > 0) chaosCard.textContent = `"you've used chaos mode ${chaosUsed} time${chaosUsed!==1?'s':''} — and came back each time. that's real resilience."`;
+}
+
+// ── FIX 3: DOMAIN RINGS from real task completion ──
+function updateDomainRings() {
+  const tasks = LS.get('tasks') || [];
+  if (!tasks.length) return;
+  const C = 169.6; // 2π * r=27
+  const doms = [
+    { key:'var(--gm)', ringId:'ring-personal', pctId:'ring-pct-personal' },
+    { key:'var(--te)', ringId:'ring-work',     pctId:'ring-pct-work' },
+    { key:'var(--pl)', ringId:'ring-brain',    pctId:'ring-pct-brain' },
+    { key:'var(--ru)', ringId:'ring-body',     pctId:'ring-pct-body' },
+  ];
+  doms.forEach(({ key, ringId, pctId }) => {
+    const dt = tasks.filter(t => t.dom === key);
+    const done = dt.filter(t => t.done).length;
+    const pct = dt.length ? Math.round((done / dt.length) * 100) : 0;
+    const fill = (pct / 100) * C;
+    const ring = document.getElementById(ringId);
+    const pctEl = document.getElementById(pctId);
+    if (ring) ring.setAttribute('stroke-dasharray', `${fill.toFixed(1)} ${(C-fill).toFixed(1)}`);
+    if (pctEl) pctEl.textContent = pct + '%';
+  });
+}
+
+function updateDomainBalance() {
+  const tasks = LS.get('tasks') || [];
+  if (!tasks.length) return;
+  const counts = { 'var(--gm)':0, 'var(--te)':0, 'var(--pl)':0, 'var(--ru)':0 };
+  tasks.forEach(t => { if(counts[t.dom]!==undefined) counts[t.dom]++; });
+  const max = Math.max(...Object.values(counts), 1);
+  const map = {
+    'var(--gm)': { fill:'db-fill-personal', val:'db-val-personal' },
+    'var(--te)': { fill:'db-fill-work',     val:'db-val-work' },
+    'var(--pl)': { fill:'db-fill-brain',    val:'db-val-brain' },
+    'var(--ru)': { fill:'db-fill-body',     val:'db-val-body' },
+  };
+  Object.entries(map).forEach(([dom, ids]) => {
+    const pct = Math.round((counts[dom] / max) * 100);
+    const fillEl = document.getElementById(ids.fill);
+    const valEl = document.getElementById(ids.val);
+    if (fillEl) fillEl.style.width = pct + '%';
+    if (valEl) valEl.textContent = pct + '%';
+  });
+}
+
+// ── FIX 4 + NEW FEATURE 3: TASKS ──
+let selCol = 'now', selDom = 'var(--gm)';
+let taskForBlock = null;
+
+function showTaskPop(blockSlot) {
+  taskForBlock = blockSlot || null;
   showPop('p-task');
   setTimeout(() => document.getElementById('taskInput')?.focus(), 300);
 }
@@ -328,14 +459,31 @@ function pickDom(btn, color) {
 
 function addTask() {
   const txt = document.getElementById('taskInput')?.value.trim();
-  if (!txt) return;
+  if (!txt) { shake(document.getElementById('taskInput')); return; }
 
-  const task = { text: txt, col: selCol, dom: selDom, done: false, id: Date.now() };
+  const deadlineDate = document.getElementById('taskDeadlineDate')?.value || '';
+  const deadlineTime = document.getElementById('taskDeadlineTime')?.value || '';
+  const duration = parseInt(document.getElementById('taskDuration')?.value || '0') || 0;
+
+  const task = {
+    text: txt,
+    col: taskForBlock ? 'block' : selCol,
+    dom: selDom,
+    done: false,
+    id: Date.now(),
+    deadlineDate,
+    deadlineTime,
+    duration,
+    blockSlot: taskForBlock || null,
+  };
+
   const tasks = LS.get('tasks') || [];
   tasks.push(task);
   LS.set('tasks', tasks);
 
-  if (selCol === 'block') {
+  if (taskForBlock) {
+    addTaskToBlock(task, taskForBlock);
+  } else if (selCol === 'block') {
     const t = document.createElement('div'); t.className = 'bitem'; t.onclick = function() { toggleBT(this); };
     t.innerHTML = `<div class="bcb"></div><div class="bpip" style="background:${selDom}"></div><span class="btt">${txt}</span>`;
     document.getElementById('ablock')?.appendChild(t);
@@ -343,28 +491,103 @@ function addTask() {
     const col = document.getElementById('col-'+selCol);
     if (col) {
       const t = document.createElement('div'); t.className = 'task'; t.dataset.id = task.id; t.onclick = function() { toggleTask(this); };
-      t.innerHTML = `<div class="tcb"></div><div class="pip" style="background:${selDom}"></div><span class="tt">${txt}</span>`;
+      const dlFlag = deadlineDate ? `<span class="task-dl-flag">📅 ${formatDeadline(deadlineDate, deadlineTime)}</span>` : '';
+      t.innerHTML = `<div class="tcb"></div><div class="pip" style="background:${selDom}"></div><span class="tt">${txt}</span>${dlFlag}`;
       col.appendChild(t);
     }
-    // tray chip
     const chip = document.createElement('div'); chip.className = 'tray-chip';
     chip.innerHTML = `<div class="cpip" style="background:${selDom}"></div>${txt}`;
     document.getElementById('trayChips')?.appendChild(chip);
-    // flow queue
     const qi = document.createElement('div'); qi.className = 'fqi';
     qi.innerHTML = `<div class="fqn">${document.querySelectorAll('.fqi').length+1}</div><div class="fqp" style="background:${selDom}"></div><div class="fqt">${txt}</div>`;
     document.getElementById('flowQueue')?.appendChild(qi);
   }
 
-  document.getElementById('taskInput').value = '';
+  if (deadlineDate) { renderWeekDeadlines(); buildWeekGrid(); }
+
+  // reset form
+  ['taskInput','taskDeadlineDate','taskDeadlineTime','taskDuration'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  taskForBlock = null;
   closePop();
+  updateDomainRings();
+}
+
+function formatDeadline(date, time) {
+  if (!date) return '';
+  const d = new Date(date + (time ? 'T'+time : 'T00:00'));
+  if (isNaN(d)) return date;
+  const opts = { month:'short', day:'numeric' };
+  return d.toLocaleDateString([], opts) + (time ? ' ' + d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '');
+}
+
+// ── NEW FEATURE 2: DEADLINE TASKS IN WEEK VIEW ──
+function renderWeekDeadlines() {
+  const container = document.getElementById('weekDeadlines');
+  if (!container) return;
+  const tasks = (LS.get('tasks') || []).filter(t => t.deadlineDate);
+  const today = new Date();
+  const dow = today.getDay();
+  const weekStart = new Date(today); weekStart.setDate(today.getDate() - (dow === 0 ? 6 : dow - 1));
+  const weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 6);
+  weekStart.setHours(0,0,0,0); weekEnd.setHours(23,59,59,999);
+
+  const thisWeek = tasks.filter(t => {
+    const d = new Date(t.deadlineDate + 'T00:00');
+    return d >= weekStart && d <= weekEnd;
+  }).sort((a,b) => new Date(a.deadlineDate) - new Date(b.deadlineDate));
+
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const domMeta = {
+    'var(--gm)': 'personal',
+    'var(--te)': 'work',
+    'var(--pl)': 'brain',
+    'var(--ru)': 'body',
+  };
+
+  if (!thisWeek.length) {
+    container.innerHTML = '<div class="wdi-empty">no deadlines this week · tap + add to add one</div>';
+  } else {
+    container.innerHTML = thisWeek.map(t => {
+      const d = new Date(t.deadlineDate + 'T00:00');
+      const timeStr = t.deadlineTime ? ' · ' + t.deadlineTime : '';
+      const doneStyle = t.done ? 'opacity:.5;text-decoration:line-through;' : '';
+      return `<div class="wdi" data-id="${t.id}" style="${doneStyle}"><div class="wdd">${dayNames[d.getDay()]}</div><div class="wdp" style="background:${t.dom}"></div><div style="flex:1"><div class="wdt">${t.text}</div><div class="wdm">${domMeta[t.dom]||''}${timeStr}</div></div><button class="wdi-del" onclick="deleteDeadlineTask(${t.id})">×</button></div>`;
+    }).join('');
+  }
+}
+
+function deleteDeadlineTask(id) {
+  let tasks = LS.get('tasks') || [];
+  tasks = tasks.filter(t => t.id !== id);
+  LS.set('tasks', tasks);
+  renderWeekDeadlines();
+  buildWeekGrid();
+  const el = document.querySelector(`.task[data-id="${id}"]`);
+  if (el) el.remove();
+}
+
+// ── NEW FEATURE 3: TIME-BLOCKED SCHEDULING ──
+function addTaskToBlock(task, slotId) {
+  const block = document.getElementById(slotId);
+  if (!block) return;
+  const empty = block.querySelector('.bempty');
+  if (empty) empty.style.display = 'none';
+  const t = document.createElement('div'); t.className = 'bitem'; t.dataset.id = task.id; t.onclick = function() { toggleBT(this); };
+  const dur = task.duration ? `<span class="bitem-dur">${task.duration}m</span>` : '';
+  t.innerHTML = `<div class="bcb"></div><div class="bpip" style="background:${task.dom}"></div><span class="btt">${task.text}</span>${dur}`;
+  const addBtn = block.querySelector('.badd');
+  if (addBtn) block.insertBefore(t, addBtn); else block.appendChild(t);
 }
 
 function renderSavedTask(t) {
+  if (t.blockSlot) { addTaskToBlock(t, t.blockSlot); return; }
   const col = document.getElementById('col-'+t.col);
   if (!col) return;
   const el = document.createElement('div'); el.className = 'task'; el.dataset.id = t.id; el.onclick = function() { toggleTask(this); };
-  el.innerHTML = `<div class="tcb${t.done?' done':''}"></div><div class="pip" style="background:${t.dom}"></div><span class="tt${t.done?' done':''}">${t.text}</span>`;
+  const dlFlag = t.deadlineDate ? `<span class="task-dl-flag">📅 ${formatDeadline(t.deadlineDate, t.deadlineTime)}</span>` : '';
+  el.innerHTML = `<div class="tcb${t.done?' done':''}"></div><div class="pip" style="background:${t.dom}"></div><span class="tt${t.done?' done':''}">${t.text}</span>${dlFlag}`;
   col.appendChild(el);
 }
 
@@ -376,18 +599,25 @@ function toggleTask(el) {
   txt.classList.toggle('done');
   flash();
 
-  // update count
   const delta = wasDone ? -1 : 1;
   const count = Math.max(0, (LS.get('tasksDoneCount')||0) + delta);
   LS.set('tasksDoneCount', count);
   setEl('streakTasks', count);
   setEl('statTasks', count);
 
-  // save state
-  const tasks = LS.get('tasks') || [];
   const id = parseInt(el.dataset.id);
+  const tasks = LS.get('tasks') || [];
   const found = tasks.find(t => t.id === id);
-  if (found) { found.done = !wasDone; LS.set('tasks', tasks); }
+  if (found) {
+    found.done = !wasDone;
+    LS.set('tasks', tasks);
+    if (found.dom === 'var(--pl)') {
+      const bc = Math.max(0, (LS.get('brainTasksCount')||0) + delta);
+      LS.set('brainTasksCount', bc);
+      setEl('streakBrain', bc);
+    }
+  }
+  updateDomainRings();
 }
 
 function toggleBT(el) {
@@ -414,7 +644,7 @@ function saveDump() {
 
   const inbox = document.getElementById('dumpInbox');
   if (inbox) {
-    if (inbox.querySelector('.di-item') === null && inbox.querySelector('div[style]')) inbox.innerHTML = '';
+    if (!inbox.querySelector('.di-item')) inbox.innerHTML = '';
     renderDumpItem(item, inbox, true);
   }
 
@@ -426,7 +656,7 @@ function saveDump() {
 function renderDumpItem(d, container, prepend = false) {
   const el = document.createElement('div'); el.className = 'di-item'; el.dataset.id = d.id;
   if (prepend) el.style.animation = 'fi .3s ease';
-  el.innerHTML = `<div class="di-text">${d.text}</div><div class="di-meta"><span class="di-time">${d.time}</span><div class="di-actions"><button class="di-btn promote" onclick="promoteItem(this)">→ task</button><button class="di-btn" onclick="archiveItem(this)">archive</button></div></div>`;
+  el.innerHTML = `<div class="di-text">${d.text}</div><div class="di-meta"><span class="di-time">${d.time}</span><div class="di-actions"><button class="di-btn promote" onclick="promoteItem(this)">→ task</button><button class="di-btn mindmap-btn" onclick="sendToMindMap(this)">→ mind map</button><button class="di-btn" onclick="archiveItem(this)">archive</button></div></div>`;
   if (prepend) container.insertBefore(el, container.firstChild);
   else container.appendChild(el);
 }
@@ -436,9 +666,12 @@ function promoteItem(btn) {
   const txt = item.querySelector('.di-text').textContent.slice(0, 50);
   const col = document.getElementById('col-later');
   if (col) {
-    const t = document.createElement('div'); t.className = 'task'; t.onclick = function() { toggleTask(this); };
+    const task = { text: txt, col: 'later', dom: 'var(--pl)', done: false, id: Date.now() };
+    const tasks = LS.get('tasks') || []; tasks.push(task); LS.set('tasks', tasks);
+    const t = document.createElement('div'); t.className = 'task'; t.dataset.id = task.id; t.onclick = function() { toggleTask(this); };
     t.innerHTML = `<div class="tcb"></div><div class="pip" style="background:var(--pl)"></div><span class="tt">${txt}</span>`;
     col.appendChild(t);
+    updateDomainRings();
   }
   removeItem(item);
 }
@@ -463,9 +696,10 @@ function sv(v) {
     document.getElementById('vw-'+x).classList.toggle('show', x === v);
     document.getElementById('vb-'+x).classList.toggle('on', x === v);
   });
+  if (v === 'week') { renderWeekDeadlines(); buildWeekGrid(); }
 }
 
-// ── PLAN — DAY NAV ──
+// ── DAY NAV ──
 let dayOff = 0;
 const DAY_N = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MON_N = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -479,30 +713,25 @@ function shiftDay(d) {
 
 function goDay(name, sub) { sv('day'); setEl('dlbl', name); setEl('dsub', sub); }
 
-// ── WEEK GRID (plan) ──
+// ── FIX 5: WEEK GRID — real tasks + real deadlines ──
 function buildWeekGrid() {
   const grid = document.getElementById('weekGrid');
   if (!grid) return;
+  grid.innerHTML = '';
   const today = new Date();
-  const dotsByDay = [
-    ['var(--gm)','var(--pl)','var(--te)'],
-    ['var(--te)','var(--te)'],
-    ['var(--gm)','var(--pl)','var(--ru)','var(--gm)'],
-    ['var(--ru)'],
-    ['var(--te)','var(--te)','var(--gm)'],
-    ['var(--pl)'],
-    []
-  ];
-  const flags = [null,'deadline',null,null,'Q2 review',null,null];
+  const tasks = LS.get('tasks') || [];
   const dayLabels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
   for (let i = 0; i < 7; i++) {
-    const dt = new Date(today); dt.setDate(today.getDate() - today.getDay() + 1 + i);
+    const dt = new Date(today); dt.setDate(today.getDate() - (today.getDay()===0?6:today.getDay()-1) + i);
     const isToday = dt.toDateString() === today.toDateString();
+    const dateStr = dt.toISOString().slice(0, 10);
+    const dayTasks = tasks.filter(t => t.deadlineDate === dateStr);
+    const dots = dayTasks.map(t => `<div class="wdot" style="background:${t.dom}"></div>`).join('');
+    const hasDeadline = dayTasks.some(t => !t.done);
     const div = document.createElement('div');
     div.className = 'wday' + (isToday ? ' today' : '');
     div.onclick = () => goDay(dayLabels[i], dayLabels[i].toLowerCase()+' · '+MON_N[dt.getMonth()]+' '+dt.getDate());
-    const dots = dotsByDay[i].map(c => `<div class="wdot" style="background:${c}"></div>`).join('');
-    div.innerHTML = `<div class="wdl">${dayLabels[i]}</div><div class="wdn">${dt.getDate()}</div><div class="wdots">${dots}</div><div class="wcnt">${dotsByDay[i].length||'rest'}</div>${flags[i]?`<div class="wflag">${flags[i]}</div>`:''}`;
+    div.innerHTML = `<div class="wdl">${dayLabels[i]}</div><div class="wdn">${dt.getDate()}</div><div class="wdots">${dots}</div><div class="wcnt">${dayTasks.length||''}</div>${hasDeadline?'<div class="wflag">deadline</div>':''}`;
     grid.appendChild(div);
   }
 }
@@ -546,30 +775,9 @@ function completeFlowTask() {
   setEl('tlbl','focus');const b=document.getElementById('startBtn');if(b)b.textContent='start focus';
 }
 
-// ── TRACK — WEEK STRIP ──
-function buildWeekStrip() {
-  const strip = document.getElementById('weekStrip');
-  if (!strip) return;
-  const eColors=['var(--gp)','var(--ga)','var(--ga)','var(--rl)','var(--ru)','var(--tl)',''];
-  const mColors=['var(--ga)','var(--ga)','var(--ru)','var(--ru)','var(--ga)','var(--ru)',''];
-  const today=new Date();
-  for(let i=6;i>=0;i--){
-    const d=new Date();d.setDate(today.getDate()-i);
-    const isToday=i===0;
-    const div=document.createElement('div');
-    div.className='wday-s'+(isToday?' active':'');
-    div.innerHTML=`<span class="wday-l">${['M','T','W','T','F','S','S'][d.getDay()]}</span><span class="wday-d">${d.getDate()}</span><div class="wday-dots-s"><div class="wdot-s" style="background:${eColors[6-i]||'var(--bg3)'}"></div><div class="wdot-s" style="background:${mColors[6-i]||'var(--bg3)'}"></div></div>`;
-    strip.appendChild(div);
-  }
-}
-
-// ── TRACK — MOOD GRID ──
-function buildMoodGrid() {
-  const grid=document.getElementById('moodGrid');
-  if(!grid)return;
-  const data=['var(--ga)','var(--ga)','var(--ru)','var(--ga)','var(--ga)','var(--bg3)','var(--ru)','var(--ru)','var(--te)','var(--ru)','var(--ru)','var(--ga)','var(--ru)','var(--ru)'];
-  data.forEach(c=>{const cell=document.createElement('div');cell.className='mc-cell';cell.style.background=c;grid.appendChild(cell);});
-}
+// ── INITIAL BUILDS ──
+function buildWeekStrip() { rebuildWeekStrip(); }
+function buildMoodGrid() { rebuildMoodGrid(); }
 
 // ── POPUP SYSTEM ──
 function showPop(id) {
@@ -592,7 +800,242 @@ function flash() {
 }
 
 function shake(el) {
+  if (!el) return;
   el.style.transform='translateX(-3px)';
-  setTimeout(()=>{el.style.transform='translateX(3px)';},70);
-  setTimeout(()=>{el.style.transform='';},140);
+  setTimeout(()=>{if(el)el.style.transform='translateX(3px)';},70);
+  setTimeout(()=>{if(el)el.style.transform='';},140);
+}
+
+// ══════════════════════════════════════════════════════
+// NEW FEATURE 1: MIND MAP — infinite canvas
+// ══════════════════════════════════════════════════════
+
+let mm = {
+  nodes: [],
+  edges: [],
+  nextId: 1,
+  dragging: null,
+  dragOffset: { x: 0, y: 0 },
+  panX: 0,
+  panY: 0,
+  panning: false,
+  panStart: { x: 0, y: 0 },
+  mode: 'drag',      // 'drag' | 'connect'
+  connecting: null,  // node id being connected from
+};
+
+function initMindMap() {
+  const canvas = document.getElementById('mmCanvas');
+  if (!canvas) return;
+
+  canvas.addEventListener('pointermove', e => {
+    if (mm.dragging !== null) {
+      const rect = canvas.getBoundingClientRect();
+      const node = mm.nodes.find(n => n.id === mm.dragging);
+      if (node) {
+        node.x = e.clientX - rect.left - mm.dragOffset.x - mm.panX;
+        node.y = e.clientY - rect.top - mm.dragOffset.y - mm.panY;
+        const el = canvas.querySelector(`.mm-node[data-id="${mm.dragging}"]`);
+        if (el) { el.style.left=(node.x+mm.panX)+'px'; el.style.top=(node.y+mm.panY)+'px'; }
+        mmUpdateEdges();
+      }
+    } else if (mm.panning) {
+      mm.panX += e.clientX - mm.panStart.x;
+      mm.panY += e.clientY - mm.panStart.y;
+      mm.panStart = { x: e.clientX, y: e.clientY };
+      mmRerender();
+    }
+  });
+
+  canvas.addEventListener('pointerup', () => {
+    if (mm.dragging !== null) { saveMM(); mm.dragging = null; }
+    mm.panning = false;
+  });
+
+  canvas.addEventListener('pointerdown', e => {
+    if (e.target === canvas || e.target.id === 'mmSvg' || e.target.tagName === 'path') {
+      if (mm.mode === 'drag') {
+        mm.panning = true;
+        mm.panStart = { x: e.clientX, y: e.clientY };
+      }
+    }
+  });
+
+  canvas.addEventListener('dblclick', e => {
+    if (e.target === canvas || e.target.id === 'mmSvg' || e.target.tagName === 'path') {
+      const rect = canvas.getBoundingClientRect();
+      mmAddNode('', e.clientX - rect.left - mm.panX - 70, e.clientY - rect.top - mm.panY - 22);
+    }
+  });
+}
+
+function openMindMap(seedText) {
+  showScreen('s-mindmap');
+  // keep nav visible
+  const nav = document.getElementById('mainNav');
+  if (nav) nav.style.display = 'flex';
+  mmLoadData();
+  if (seedText) {
+    const canvas = document.getElementById('mmCanvas');
+    const rect = canvas ? canvas.getBoundingClientRect() : { width: 390, height: 600 };
+    mmAddNode(seedText, Math.round(rect.width/2 - mm.panX - 70), Math.round(rect.height/2 - mm.panY - 40));
+  }
+}
+
+function closeMindMap() {
+  goTab('track');
+}
+
+function mmLoadData() {
+  mm.nodes = LS.get('mmNodes') || [];
+  mm.edges = LS.get('mmEdges') || [];
+  mm.nextId = mm.nodes.length ? Math.max(...mm.nodes.map(n=>n.id)) + 1 : 1;
+  mmRerender();
+}
+
+function saveMM() {
+  LS.set('mmNodes', mm.nodes);
+  LS.set('mmEdges', mm.edges);
+}
+
+function mmAddNode(text, x, y) {
+  const id = mm.nextId++;
+  mm.nodes.push({ id, text: text || '', x: x||100, y: y||100 });
+  saveMM();
+  mmRerender();
+  setTimeout(() => {
+    const el = document.querySelector(`.mm-node[data-id="${id}"] .mm-node-text`);
+    if (el) { el.focus(); if (!text) { /* ready to type */ } else { const r=document.createRange();r.selectNodeContents(el);const s=window.getSelection();s.removeAllRanges();s.addRange(r); } }
+  }, 80);
+}
+
+function mmDeleteNode(id) {
+  mm.nodes = mm.nodes.filter(n => n.id !== id);
+  mm.edges = mm.edges.filter(e => e.from !== id && e.to !== id);
+  if (mm.connecting === id) { mm.connecting = null; setEl('mmConnectHint','tap two nodes to connect them'); }
+  saveMM();
+  mmRerender();
+}
+
+function mmUpdateEdges() {
+  const svg = document.getElementById('mmSvg');
+  if (!svg) return;
+  svg.innerHTML = mmEdgePaths();
+}
+
+function mmEdgePaths() {
+  return mm.edges.map(e => {
+    const a = mm.nodes.find(n=>n.id===e.from), b = mm.nodes.find(n=>n.id===e.to);
+    if (!a||!b) return '';
+    const ax = a.x+mm.panX+70, ay = a.y+mm.panY+22;
+    const bx = b.x+mm.panX+70, by = b.y+mm.panY+22;
+    const mx = (ax+bx)/2, my = (ay+by)/2 - 30;
+    return `<path d="M${ax},${ay} Q${mx},${my} ${bx},${by}" stroke="var(--ga)" stroke-width="1.5" fill="none" opacity="0.55" stroke-linecap="round"/>`;
+  }).join('');
+}
+
+function mmRerender() {
+  const canvas = document.getElementById('mmCanvas');
+  if (!canvas) return;
+
+  let svg = document.getElementById('mmSvg');
+  if (!svg) {
+    svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.id = 'mmSvg';
+    svg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:visible;';
+    canvas.insertBefore(svg, canvas.firstChild);
+  }
+  svg.innerHTML = mmEdgePaths();
+
+  canvas.querySelectorAll('.mm-node').forEach(el => el.remove());
+
+  mm.nodes.forEach(n => {
+    const el = document.createElement('div');
+    el.className = 'mm-node' + (mm.connecting === n.id ? ' mm-node-connecting' : '');
+    el.dataset.id = n.id;
+    el.style.cssText = `left:${n.x+mm.panX}px;top:${n.y+mm.panY}px;`;
+    el.innerHTML = `<div class="mm-node-text" contenteditable="true" spellcheck="false">${escHtml(n.text)}</div><button class="mm-node-del" title="remove">×</button>`;
+
+    const textEl = el.querySelector('.mm-node-text');
+    textEl.addEventListener('input', () => {
+      const node = mm.nodes.find(x=>x.id===n.id);
+      if (node) { node.text = textEl.textContent; saveMM(); }
+    });
+    textEl.addEventListener('keydown', e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();textEl.blur();} });
+
+    el.querySelector('.mm-node-del').addEventListener('click', e => {
+      e.stopPropagation();
+      mmDeleteNode(n.id);
+    });
+
+    el.addEventListener('pointerdown', e => {
+      if (e.target.classList.contains('mm-node-del')) return;
+      if (e.target === textEl && document.activeElement === textEl) return;
+      if (mm.mode === 'connect') { mmHandleConnect(n.id); return; }
+      mm.dragging = n.id;
+      const rect = el.getBoundingClientRect();
+      mm.dragOffset = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      e.preventDefault();
+    });
+
+    canvas.appendChild(el);
+  });
+}
+
+function escHtml(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function mmHandleConnect(id) {
+  if (mm.connecting === null) {
+    mm.connecting = id;
+    setEl('mmConnectHint', 'now tap another node — tap same to cancel');
+    document.querySelectorAll('.mm-node').forEach(el => el.classList.toggle('mm-node-connecting', parseInt(el.dataset.id)===id));
+  } else if (mm.connecting === id) {
+    mm.connecting = null;
+    setEl('mmConnectHint', 'tap two nodes to connect them');
+    document.querySelectorAll('.mm-node').forEach(el => el.classList.remove('mm-node-connecting'));
+  } else {
+    const exists = mm.edges.some(e=>(e.from===mm.connecting&&e.to===id)||(e.from===id&&e.to===mm.connecting));
+    if (exists) mm.edges = mm.edges.filter(e=>!((e.from===mm.connecting&&e.to===id)||(e.from===id&&e.to===mm.connecting)));
+    else mm.edges.push({ from: mm.connecting, to: id });
+    mm.connecting = null;
+    setEl('mmConnectHint', 'tap two nodes to connect them');
+    document.querySelectorAll('.mm-node').forEach(el => el.classList.remove('mm-node-connecting'));
+    saveMM();
+    mmRerender();
+  }
+}
+
+function mmSetMode(mode, btn) {
+  mm.mode = mode;
+  mm.connecting = null;
+  document.querySelectorAll('.mm-mode-btn').forEach(b => b.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+  const hint = document.getElementById('mmConnectHint');
+  if (hint) hint.style.display = mode==='connect' ? 'block' : 'none';
+  document.querySelectorAll('.mm-node').forEach(el => el.classList.remove('mm-node-connecting'));
+}
+
+function mmAddNodeBtn() {
+  const canvas = document.getElementById('mmCanvas');
+  const rect = canvas ? canvas.getBoundingClientRect() : { width:390, height:600 };
+  const x = Math.round(rect.width/2 - mm.panX - 70 + (Math.random()-0.5)*120);
+  const y = Math.round(rect.height/2 - mm.panY - 22 + (Math.random()-0.5)*80);
+  mmAddNode('', x, y);
+}
+
+function mmClearAll() {
+  if (mm.nodes.length === 0) return;
+  if (!confirm('clear all nodes? this cannot be undone.')) return;
+  mm.nodes = []; mm.edges = []; mm.nextId = 1; mm.connecting = null;
+  saveMM();
+  mmRerender();
+}
+
+function sendToMindMap(btn) {
+  const item = btn.closest('.di-item');
+  const txt = item.querySelector('.di-text').textContent.slice(0, 100);
+  removeItem(item);
+  openMindMap(txt);
 }
