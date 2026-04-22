@@ -1170,26 +1170,38 @@ let mm = {
   panStart: { x: 0, y: 0 },
   mode: 'drag',      // 'drag' | 'connect'
   connecting: null,  // node id being connected from
+  scale: 1,          // zoom level
+  // pinch tracking
+  _pinchDist: null,
+  _pinchMid: null,
+  // double-tap tracking (mobile)
+  _lastTap: 0,
+  _lastTapX: 0,
+  _lastTapY: 0,
 };
 
 function initMindMap() {
   const canvas = document.getElementById('mmCanvas');
   if (!canvas) return;
 
+  // ── POINTER: drag nodes & pan canvas ──
   canvas.addEventListener('pointermove', e => {
     if (mm.dragging !== null) {
       const rect = canvas.getBoundingClientRect();
       const node = mm.nodes.find(n => n.id === mm.dragging);
       if (node) {
-        node.x = e.clientX - rect.left - mm.dragOffset.x - mm.panX;
-        node.y = e.clientY - rect.top - mm.dragOffset.y - mm.panY;
+        node.x = (e.clientX - rect.left - mm.dragOffset.x) / mm.scale - mm.panX;
+        node.y = (e.clientY - rect.top  - mm.dragOffset.y) / mm.scale - mm.panY;
         const el = canvas.querySelector(`.mm-node[data-id="${mm.dragging}"]`);
-        if (el) { el.style.left=(node.x+mm.panX)+'px'; el.style.top=(node.y+mm.panY)+'px'; }
+        if (el) {
+          el.style.left = ((node.x + mm.panX) * mm.scale) + 'px';
+          el.style.top  = ((node.y + mm.panY) * mm.scale) + 'px';
+        }
         mmUpdateEdges();
       }
     } else if (mm.panning) {
-      mm.panX += e.clientX - mm.panStart.x;
-      mm.panY += e.clientY - mm.panStart.y;
+      mm.panX += (e.clientX - mm.panStart.x) / mm.scale;
+      mm.panY += (e.clientY - mm.panStart.y) / mm.scale;
       mm.panStart = { x: e.clientX, y: e.clientY };
       mmRerender();
     }
@@ -1209,12 +1221,108 @@ function initMindMap() {
     }
   });
 
+  // ── DOUBLE-CLICK: desktop add node ──
   canvas.addEventListener('dblclick', e => {
     if (e.target === canvas || e.target.id === 'mmSvg' || e.target.tagName === 'path') {
       const rect = canvas.getBoundingClientRect();
-      mmAddNode('', e.clientX - rect.left - mm.panX - 70, e.clientY - rect.top - mm.panY - 22);
+      const cx = (e.clientX - rect.left) / mm.scale - mm.panX;
+      const cy = (e.clientY - rect.top)  / mm.scale - mm.panY;
+      mmAddNode('', Math.round(cx - 70), Math.round(cy - 22));
     }
   });
+
+  // ── DOUBLE-TAP: mobile add node ──
+  // touchstart fires before pointerdown so we can detect taps independently
+  canvas.addEventListener('touchstart', e => {
+    // Only act on single-finger taps on the canvas background
+    if (e.touches.length !== 1) return;
+    const t = e.touches[0];
+    const target = e.target;
+    const isBackground = target === canvas || target.id === 'mmSvg' || target.tagName === 'path';
+    if (!isBackground) return;
+
+    const now = Date.now();
+    const dx = t.clientX - mm._lastTapX;
+    const dy = t.clientY - mm._lastTapY;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+
+    if (now - mm._lastTap < 350 && dist < 30) {
+      // Double-tap detected
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const cx = (t.clientX - rect.left) / mm.scale - mm.panX;
+      const cy = (t.clientY - rect.top)  / mm.scale - mm.panY;
+      mmAddNode('', Math.round(cx - 70), Math.round(cy - 22));
+      mm._lastTap = 0; // reset so triple-tap doesn't also fire
+    } else {
+      mm._lastTap = now;
+      mm._lastTapX = t.clientX;
+      mm._lastTapY = t.clientY;
+    }
+  }, { passive: false });
+
+  // ── PINCH TO ZOOM ──
+  canvas.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      mm._pinchDist = mmPinchDist(e.touches);
+      mm._pinchMid  = mmPinchMid(e.touches, canvas);
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', e => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const newDist = mmPinchDist(e.touches);
+      if (mm._pinchDist) {
+        const ratio = newDist / mm._pinchDist;
+        const newScale = Math.min(3, Math.max(0.25, mm.scale * ratio));
+        // Zoom toward the pinch midpoint
+        if (mm._pinchMid) {
+          mm.panX -= mm._pinchMid.x * (1/newScale - 1/mm.scale);
+          mm.panY -= mm._pinchMid.y * (1/newScale - 1/mm.scale);
+        }
+        mm.scale = newScale;
+        mm._pinchDist = newDist;
+        mmRerender();
+      }
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', e => {
+    if (e.touches.length < 2) {
+      mm._pinchDist = null;
+      mm._pinchMid  = null;
+    }
+  });
+
+  // ── MOUSE WHEEL ZOOM (desktop bonus) ──
+  canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) / mm.scale;
+    const my = (e.clientY - rect.top)  / mm.scale;
+    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+    const newScale = Math.min(3, Math.max(0.25, mm.scale * delta));
+    mm.panX -= mx * (1/newScale - 1/mm.scale);
+    mm.panY -= my * (1/newScale - 1/mm.scale);
+    mm.scale = newScale;
+    mmRerender();
+  }, { passive: false });
+}
+
+// ── PINCH HELPERS ──
+function mmPinchDist(touches) {
+  const dx = touches[0].clientX - touches[1].clientX;
+  const dy = touches[0].clientY - touches[1].clientY;
+  return Math.sqrt(dx*dx + dy*dy);
+}
+function mmPinchMid(touches, canvas) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: ((touches[0].clientX + touches[1].clientX) / 2 - rect.left) / mm.scale,
+    y: ((touches[0].clientY + touches[1].clientY) / 2 - rect.top)  / mm.scale,
+  };
 }
 
 function openMindMap(seedText) {
@@ -1273,9 +1381,9 @@ function mmEdgePaths() {
   return mm.edges.map(e => {
     const a = mm.nodes.find(n=>n.id===e.from), b = mm.nodes.find(n=>n.id===e.to);
     if (!a||!b) return '';
-    const ax = a.x+mm.panX+70, ay = a.y+mm.panY+22;
-    const bx = b.x+mm.panX+70, by = b.y+mm.panY+22;
-    const mx = (ax+bx)/2, my = (ay+by)/2 - 30;
+    const ax = (a.x+mm.panX+70)*mm.scale, ay = (a.y+mm.panY+22)*mm.scale;
+    const bx = (b.x+mm.panX+70)*mm.scale, by = (b.y+mm.panY+22)*mm.scale;
+    const mx = (ax+bx)/2, my = (ay+by)/2 - 30*mm.scale;
     return `<path d="M${ax},${ay} Q${mx},${my} ${bx},${by}" stroke="var(--ga)" stroke-width="1.5" fill="none" opacity="0.55" stroke-linecap="round"/>`;
   }).join('');
 }
@@ -1283,6 +1391,10 @@ function mmEdgePaths() {
 function mmRerender() {
   const canvas = document.getElementById('mmCanvas');
   if (!canvas) return;
+
+  // ── Show/hide empty hint ──
+  const hint = document.getElementById('mmEmptyHint');
+  if (hint) hint.style.display = mm.nodes.length === 0 ? '' : 'none';
 
   let svg = document.getElementById('mmSvg');
   if (!svg) {
@@ -1299,7 +1411,9 @@ function mmRerender() {
     const el = document.createElement('div');
     el.className = 'mm-node' + (mm.connecting === n.id ? ' mm-node-connecting' : '');
     el.dataset.id = n.id;
-    el.style.cssText = `left:${n.x+mm.panX}px;top:${n.y+mm.panY}px;`;
+    const sx = (n.x + mm.panX) * mm.scale;
+    const sy = (n.y + mm.panY) * mm.scale;
+    el.style.cssText = `left:${sx}px;top:${sy}px;transform:scale(${mm.scale});transform-origin:top left;`;
     el.innerHTML = `<div class="mm-node-text" contenteditable="true" spellcheck="false">${escHtml(n.text)}</div><button class="mm-node-del" title="remove">×</button>`;
 
     const textEl = el.querySelector('.mm-node-text');
@@ -1320,7 +1434,8 @@ function mmRerender() {
       if (mm.mode === 'connect') { mmHandleConnect(n.id); return; }
       mm.dragging = n.id;
       const rect = el.getBoundingClientRect();
-      mm.dragOffset = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      // Drag offset in screen pixels (not scaled) — we divide by scale during move
+      mm.dragOffset = { x: (e.clientX - rect.left), y: (e.clientY - rect.top) };
       e.preventDefault();
     });
 
