@@ -305,15 +305,21 @@ function mmRerender() {
       sel.addRange(range);
     });
 
-    // ── SINGLE TAP / DOUBLE-TAP: mobile ──
+    // ── TAP / DOUBLE-TAP: drag mode ──
+    // Single tap starts drag after a short delay (in case it's a double-tap).
+    // Double-tap cancels the drag and opens edit instead.
     let _nodeTap = 0;
+    let _dragTimer = null;
     el.addEventListener('pointerdown', e => {
       if (e.target.classList.contains('mm-node-del')) return;
       if (mm.mode === 'connect') { mmHandleConnect(n.id); return; }
 
       const now = Date.now();
       if (now - _nodeTap < 350) {
-        // double-tap — open edit
+        // double-tap — cancel pending drag, open edit
+        clearTimeout(_dragTimer);
+        _dragTimer = null;
+        mm.dragging = null;
         e.preventDefault();
         e.stopPropagation();
         textEl.setAttribute('contenteditable', 'true');
@@ -329,10 +335,14 @@ function mmRerender() {
       }
       _nodeTap = now;
 
-      // single tap — drag
-      mm.dragging = n.id;
+      // first tap — wait before committing to drag
       const rect = el.getBoundingClientRect();
-      mm.dragOffset = { x: (e.clientX - rect.left), y: (e.clientY - rect.top) };
+      const dragOffset = { x: (e.clientX - rect.left), y: (e.clientY - rect.top) };
+      _dragTimer = setTimeout(() => {
+        mm.dragging = n.id;
+        mm.dragOffset = dragOffset;
+        _dragTimer = null;
+      }, 180);
       e.preventDefault();
     });
 
