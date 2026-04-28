@@ -279,7 +279,8 @@ function mmRerender() {
 
     el.addEventListener('pointerdown', e => {
       if (e.target.classList.contains('mm-node-del')) return;
-      if (e.target === textEl && document.activeElement === textEl) return;
+      // tapping the text area should always focus it for editing — never drag
+      if (e.target === textEl) { textEl.focus(); return; }
       if (mm.mode === 'connect') { mmHandleConnect(n.id); return; }
       mm.dragging = n.id;
       const rect = el.getBoundingClientRect();
