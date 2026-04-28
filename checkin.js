@@ -5,10 +5,72 @@
 // Writes: Storage + AppState.todayCI / energy / mood / cyclePhase / meds
 // ─────────────────────────────────────────────────────
 
-// ── CHECK-IN TILES ──
-const CI_POPS = ['energy', 'cycle', 'mood', 'meds'];
+// ── TILE DEFINITIONS ──
+// Master list of all possible tiles.
+// popId maps to the popup element id in index.html.
+// appStateKey maps the tile value into AppState when logged.
+const CI_TILE_DEFS = [
+  { name: 'Energy level',  popId: 'p-energy',      label: 'energy',       appStateKey: 'energy'      },
+  { name: 'Mood',          popId: 'p-mood',         label: 'mood',         appStateKey: 'mood'        },
+  { name: 'Cycle phase',   popId: 'p-cycle',        label: 'cycle phase',  appStateKey: 'cyclePhase'  },
+  { name: 'Medication',    popId: 'p-meds',         label: 'meds',         appStateKey: 'meds'        },
+  { name: 'Sleep quality', popId: 'p-sleep',        label: 'sleep',        appStateKey: null          },
+  { name: 'Stress level',  popId: 'p-stress',       label: 'stress',       appStateKey: null          },
+  { name: 'Period only',   popId: 'p-period',       label: 'period',       appStateKey: null          },
+  { name: 'Supplements',   popId: 'p-supplements',  label: 'supplements',  appStateKey: null          },
+  { name: 'Therapy / CBT', popId: 'p-therapy',      label: 'therapy',      appStateKey: null          },
+  { name: 'Exercise',      popId: 'p-exercise',     label: 'exercise',     appStateKey: null          },
+];
 
-function showCIpop(idx) { showPop('p-' + CI_POPS[idx]); }
+// Active tiles for this session — populated by renderCITiles()
+let _activeTiles = [];
+
+// ── RENDER TILES from saved onboarding selection ──
+function renderCITiles() {
+  const grid = document.getElementById('tciGrid');
+  if (!grid) return;
+
+  const saved = Storage.getCheckInTiles(); // names saved at onboarding
+  // always include energy and mood if not already saved (first run / legacy)
+  const mustHave = ['Energy level', 'Mood'];
+  const tileNames = saved.length
+    ? [...new Set([...mustHave, ...saved])]
+    : mustHave;
+
+  // build active tile list in definition order
+  _activeTiles = CI_TILE_DEFS.filter(d => tileNames.includes(d.name));
+
+  grid.innerHTML = '';
+  _activeTiles.forEach((tile, idx) => {
+    const div = document.createElement('div');
+    div.className = 'tci-tile';
+    div.id = 'ttile-' + idx;
+    div.onclick = () => showCIpop(idx);
+    div.innerHTML = `<div class="tci-label">${tile.label}</div><div class="tci-val" id="ttv-${idx}">tap to log</div>`;
+    grid.appendChild(div);
+  });
+
+  // update hint to reflect tile count
+  const hint = document.getElementById('ciHint');
+  if (hint) hint.textContent = `log all ${_activeTiles.length} to complete today's check-in`;
+}
+
+// ── SHOW POPUP for tile at index ──
+function showCIpop(idx) {
+  const tile = _activeTiles[idx];
+  if (!tile) return;
+  // patch setCIval index into popup buttons for this tile
+  const pop = document.getElementById(tile.popId);
+  if (!pop) return;
+  pop.querySelectorAll('.popt').forEach(btn => {
+    const onclickAttr = btn.getAttribute('onclick');
+    if (onclickAttr) {
+      // replace the placeholder index (-1) with the real idx
+      btn.setAttribute('onclick', onclickAttr.replace(/setCIval\([^,]+,/, `setCIval(${idx},`));
+    }
+  });
+  showPop(tile.popId);
+}
 
 function setCIval(idx, val, color, btn) {
   updateCIDisplay(idx, val, color);
@@ -19,12 +81,10 @@ function setCIval(idx, val, color, btn) {
   Storage.saveTodayCI(ci);
   Storage.saveCIDay(new Date().toDateString());
 
-  // Write to AppState
+  // Write to AppState using the tile's appStateKey
   AppState.todayCI = ci;
-  if (idx === 0) AppState.energy     = val;
-  if (idx === 1) AppState.cyclePhase = val;
-  if (idx === 2) AppState.mood       = val;
-  if (idx === 3) AppState.meds       = val;
+  const tile = _activeTiles[idx];
+  if (tile?.appStateKey) AppState[tile.appStateKey] = val;
   updateDerivedState();
 
   updateCIStatus();
