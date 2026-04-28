@@ -85,7 +85,7 @@ function togMax(el, gid, max) {
 function togCI(el) {
   const all = document.querySelectorAll('.cirow');
   const on  = [...all].filter(r => r.classList.contains('on'));
-  if (!el.classList.contains('on') && on.length >= 4) { shake(el); return; }
+  if (!el.classList.contains('on') && on.length >= 5) { shake(el); return; }
   el.classList.toggle('on');
   const newOn = [...all].filter(r => r.classList.contains('on'));
   setEl('cicnt', newOn.length);
@@ -144,6 +144,7 @@ function finishOnboarding() {
 
 function goToApp() {
   hydrateAppState();
+  renderCITiles();
   loadAllData();
   showMainNav(true);
   showScreen('s-home');
@@ -158,6 +159,7 @@ function loadAllData() {
   const nameEl = document.getElementById('home-name');
   if (nameEl) nameEl.innerHTML = `hey, <em>${AppState.userName}</em>`;
 
+  renderCITiles(); // build tiles from saved onboarding selection before restoring values
   Storage.getTasks().forEach(t => renderSavedTask(t));
 
   const today = new Date().toDateString();
