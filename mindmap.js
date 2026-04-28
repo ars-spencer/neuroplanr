@@ -205,6 +205,7 @@ function mmAddNode(text, x, y) {
   setTimeout(() => {
     const el = document.querySelector(`.mm-node[data-id="${id}"] .mm-node-text`);
     if (el) {
+      el.setAttribute('contenteditable', 'true');
       el.focus();
       if (text) { const r = document.createRange(); r.selectNodeContents(el); const s = window.getSelection(); s.removeAllRanges(); s.addRange(r); }
     }
@@ -266,22 +267,69 @@ function mmRerender() {
     el.innerHTML = `<div class="mm-node-text" contenteditable="true" spellcheck="false">${escHtml(n.text)}</div><button class="mm-node-del" title="remove">×</button>`;
 
     const textEl = el.querySelector('.mm-node-text');
+
+    // editing only opens via double-tap/dblclick — not direct focus
+    textEl.setAttribute('contenteditable', 'false');
+
     textEl.addEventListener('input', () => {
       const node = mm.nodes.find(x => x.id === n.id);
       if (node) { node.text = textEl.textContent; saveMM(); }
     });
-    textEl.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); textEl.blur(); } });
+    textEl.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        textEl.blur();
+        textEl.setAttribute('contenteditable', 'false');
+      }
+    });
+    textEl.addEventListener('blur', () => {
+      textEl.setAttribute('contenteditable', 'false');
+    });
 
     el.querySelector('.mm-node-del').addEventListener('click', e => {
       e.stopPropagation();
       mmDeleteNode(n.id);
     });
 
+    // ── DOUBLE-CLICK: desktop edit ──
+    el.addEventListener('dblclick', e => {
+      if (e.target.classList.contains('mm-node-del')) return;
+      e.stopPropagation();
+      textEl.setAttribute('contenteditable', 'true');
+      textEl.focus();
+      const range = document.createRange();
+      range.selectNodeContents(textEl);
+      range.collapse(false);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    });
+
+    // ── SINGLE TAP / DOUBLE-TAP: mobile ──
+    let _nodeTap = 0;
     el.addEventListener('pointerdown', e => {
       if (e.target.classList.contains('mm-node-del')) return;
-      // tapping the text area should always focus it for editing — never drag
-      if (e.target === textEl) { textEl.focus(); return; }
       if (mm.mode === 'connect') { mmHandleConnect(n.id); return; }
+
+      const now = Date.now();
+      if (now - _nodeTap < 350) {
+        // double-tap — open edit
+        e.preventDefault();
+        e.stopPropagation();
+        textEl.setAttribute('contenteditable', 'true');
+        textEl.focus();
+        const range = document.createRange();
+        range.selectNodeContents(textEl);
+        range.collapse(false);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        _nodeTap = 0;
+        return;
+      }
+      _nodeTap = now;
+
+      // single tap — drag
       mm.dragging = n.id;
       const rect = el.getBoundingClientRect();
       mm.dragOffset = { x: (e.clientX - rect.left), y: (e.clientY - rect.top) };
