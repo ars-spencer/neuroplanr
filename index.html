@@ -389,87 +389,87 @@
     <div id="p-exercise" style="display:none">
       <div class="pop-title">exercise</div>
       <div class="pop-opts">
-        <button class="popt" onclick="setCIval(-1,'moved','var(--ga)',this)"><div class="popt-v" style="color:var(--ga)">✓</div><div class="popt-l">moved today</div></button>
-        <button class="popt" onclick="setCIval(-1,'rest','var(--ru)',this)"><div class="popt-v" style="color:var(--ru)">◡</div><div class="popt-l">rest day</div></button>
+        <button class="popt" data-ci-action="moved|var(--ga)"><div class="popt-v" style="color:var(--ga)">✓</div><div class="popt-l">moved today</div></button>
+        <button class="popt" data-ci-action="rest|var(--ru)"><div class="popt-v" style="color:var(--ru)">◡</div><div class="popt-l">rest day</div></button>
       </div>
     </div>
 
     <div id="p-sleep" style="display:none">
       <div class="pop-title">sleep quality</div>
       <div class="pop-opts">
-        <button class="popt" onclick="setCIval(-1,'poor','var(--te)',this)"><div class="popt-v" style="color:var(--te)">–</div><div class="popt-l">poor</div></button>
-        <button class="popt" onclick="setCIval(-1,'okay','var(--ru)',this)"><div class="popt-v" style="color:var(--ru)">~</div><div class="popt-l">okay</div></button>
-        <button class="popt" onclick="setCIval(-1,'good','var(--ga)',this)"><div class="popt-v" style="color:var(--ga)">+</div><div class="popt-l">good</div></button>
+        <button class="popt" data-ci-action="poor|var(--te)"><div class="popt-v" style="color:var(--te)">–</div><div class="popt-l">poor</div></button>
+        <button class="popt" data-ci-action="okay|var(--ru)"><div class="popt-v" style="color:var(--ru)">~</div><div class="popt-l">okay</div></button>
+        <button class="popt" data-ci-action="good|var(--ga)"><div class="popt-v" style="color:var(--ga)">+</div><div class="popt-l">good</div></button>
       </div>
     </div>
 
     <div id="p-stress" style="display:none">
       <div class="pop-title">stress level</div>
       <div class="pop-opts">
-        <button class="popt" onclick="setCIval(-1,'calm','var(--ga)',this)"><div class="popt-v" style="color:var(--ga)">◡</div><div class="popt-l">calm</div></button>
-        <button class="popt" onclick="setCIval(-1,'moderate','var(--ru)',this)"><div class="popt-v" style="color:var(--ru)">~</div><div class="popt-l">moderate</div></button>
-        <button class="popt" onclick="setCIval(-1,'high','var(--te)',this)"><div class="popt-v" style="color:var(--te)">!</div><div class="popt-l">overwhelmed</div></button>
+        <button class="popt" data-ci-action="calm|var(--ga)"><div class="popt-v" style="color:var(--ga)">◡</div><div class="popt-l">calm</div></button>
+        <button class="popt" data-ci-action="moderate|var(--ru)"><div class="popt-v" style="color:var(--ru)">~</div><div class="popt-l">moderate</div></button>
+        <button class="popt" data-ci-action="high|var(--te)"><div class="popt-v" style="color:var(--te)">!</div><div class="popt-l">overwhelmed</div></button>
       </div>
     </div>
 
     <div id="p-period" style="display:none">
       <div class="pop-title">period</div>
       <div class="pop-opts">
-        <button class="popt" onclick="setCIval(-1,'yes','var(--te)',this)"><div class="popt-v" style="color:var(--te)">◉</div><div class="popt-l">yes</div></button>
-        <button class="popt" onclick="setCIval(-1,'no','var(--ga)',this)"><div class="popt-v" style="color:var(--ga)">○</div><div class="popt-l">no</div></button>
+        <button class="popt" data-ci-action="yes|var(--te)"><div class="popt-v" style="color:var(--te)">◉</div><div class="popt-l">yes</div></button>
+        <button class="popt" data-ci-action="no|var(--ga)"><div class="popt-v" style="color:var(--ga)">○</div><div class="popt-l">no</div></button>
       </div>
     </div>
 
     <div id="p-supplements" style="display:none">
       <div class="pop-title">supplements</div>
       <div class="pop-opts">
-        <button class="popt" onclick="setCIval(-1,'taken','var(--ga)',this)"><div class="popt-v" style="color:var(--ga)">✓</div><div class="popt-l">taken</div></button>
-        <button class="popt" onclick="setCIval(-1,'skipped','var(--t3)',this)"><div class="popt-v" style="color:var(--t3)">–</div><div class="popt-l">skipped</div></button>
+        <button class="popt" data-ci-action="taken|var(--ga)"><div class="popt-v" style="color:var(--ga)">✓</div><div class="popt-l">taken</div></button>
+        <button class="popt" data-ci-action="skipped|var(--t3)"><div class="popt-v" style="color:var(--t3)">–</div><div class="popt-l">skipped</div></button>
       </div>
     </div>
 
     <div id="p-therapy" style="display:none">
       <div class="pop-title">therapy / CBT</div>
       <div class="pop-opts">
-        <button class="popt" onclick="setCIval(-1,'done','var(--ga)',this)"><div class="popt-v" style="color:var(--ga)">✓</div><div class="popt-l">did my practice</div></button>
-        <button class="popt" onclick="setCIval(-1,'skip','var(--t3)',this)"><div class="popt-v" style="color:var(--t3)">–</div><div class="popt-l">not today</div></button>
+        <button class="popt" data-ci-action="done|var(--ga)"><div class="popt-v" style="color:var(--ga)">✓</div><div class="popt-l">did my practice</div></button>
+        <button class="popt" data-ci-action="skip|var(--t3)"><div class="popt-v" style="color:var(--t3)">–</div><div class="popt-l">not today</div></button>
       </div>
     </div>
 
     <div id="p-energy" style="display:none">
       <div class="pop-t">energy today</div>
       <div class="pop-opts">
-        <button class="popt" onclick="setCIval(0,'low','var(--tl)',this)"><div class="popt-v" style="color:var(--tl)">low</div><div class="popt-l">depleted</div></button>
-        <button class="popt" onclick="setCIval(0,'med','var(--ru)',this)"><div class="popt-v" style="color:var(--ru)">med</div><div class="popt-l">steady</div></button>
-        <button class="popt" onclick="setCIval(0,'high','var(--ga)',this)"><div class="popt-v" style="color:var(--ga)">high</div><div class="popt-l">firing</div></button>
+        <button class="popt" data-ci-action="low|var(--tl)"><div class="popt-v" style="color:var(--tl)">low</div><div class="popt-l">depleted</div></button>
+        <button class="popt" data-ci-action="med|var(--ru)"><div class="popt-v" style="color:var(--ru)">med</div><div class="popt-l">steady</div></button>
+        <button class="popt" data-ci-action="high|var(--ga)"><div class="popt-v" style="color:var(--ga)">high</div><div class="popt-l">firing</div></button>
       </div>
       <button class="pbtn" onclick="closePop()">done</button>
     </div>
     <div id="p-cycle" style="display:none">
       <div class="pop-t">cycle phase</div>
       <div class="ph-grid">
-        <button class="ph-btn" onclick="setCIval(1,'menstrual','var(--tl)',this)"><div class="ph-v" style="color:var(--tl)">menstrual</div><div class="ph-l">days 1–5</div></button>
-        <button class="ph-btn" onclick="setCIval(1,'follicular','var(--ga)',this)"><div class="ph-v" style="color:var(--ga)">follicular</div><div class="ph-l">days 6–13</div></button>
-        <button class="ph-btn" onclick="setCIval(1,'ovulation','var(--pll)',this)"><div class="ph-v" style="color:var(--pll)">ovulation</div><div class="ph-l">days 14–17</div></button>
-        <button class="ph-btn" onclick="setCIval(1,'luteal','var(--rl)',this)"><div class="ph-v" style="color:var(--rl)">luteal</div><div class="ph-l">days 18–28</div></button>
+        <button class="ph-btn" data-ci-action="menstrual|var(--tl)"><div class="ph-v" style="color:var(--tl)">menstrual</div><div class="ph-l">days 1–5</div></button>
+        <button class="ph-btn" data-ci-action="follicular|var(--ga)"><div class="ph-v" style="color:var(--ga)">follicular</div><div class="ph-l">days 6–13</div></button>
+        <button class="ph-btn" data-ci-action="ovulation|var(--pll)"><div class="ph-v" style="color:var(--pll)">ovulation</div><div class="ph-l">days 14–17</div></button>
+        <button class="ph-btn" data-ci-action="luteal|var(--rl)"><div class="ph-v" style="color:var(--rl)">luteal</div><div class="ph-l">days 18–28</div></button>
       </div>
       <button class="pbtn" onclick="closePop()">done</button>
     </div>
     <div id="p-mood" style="display:none">
       <div class="pop-t">mood today</div>
       <div class="pop-opts">
-        <button class="popt" onclick="setCIval(2,'–','var(--te)',this)"><div class="popt-v" style="color:var(--te)">–</div><div class="popt-l">rough</div></button>
-        <button class="popt" onclick="setCIval(2,'~','var(--pll)',this)"><div class="popt-v" style="color:var(--pll)">~</div><div class="popt-l">okay</div></button>
-        <button class="popt" onclick="setCIval(2,'+','var(--ga)',this)"><div class="popt-v" style="color:var(--ga)">+</div><div class="popt-l">good</div></button>
+        <button class="popt" data-ci-action="–|var(--te)"><div class="popt-v" style="color:var(--te)">–</div><div class="popt-l">rough</div></button>
+        <button class="popt" data-ci-action="~|var(--pll)"><div class="popt-v" style="color:var(--pll)">~</div><div class="popt-l">okay</div></button>
+        <button class="popt" data-ci-action="+|var(--ga)"><div class="popt-v" style="color:var(--ga)">+</div><div class="popt-l">good</div></button>
       </div>
       <button class="pbtn" onclick="closePop()">done</button>
     </div>
     <div id="p-meds" style="display:none">
       <div class="pop-t">meds today</div>
       <div class="pop-opts">
-        <button class="popt" onclick="setCIval(3,'✓','var(--ga)',this)"><div class="popt-v" style="color:var(--ga)">✓</div><div class="popt-l">taken</div></button>
-        <button class="popt" onclick="setCIval(3,'—','var(--t3)',this)"><div class="popt-v" style="color:var(--t3)">—</div><div class="popt-l">not yet</div></button>
-        <button class="popt" onclick="setCIval(3,'skip','var(--ta)',this)"><div class="popt-v" style="color:var(--ta)">skip</div><div class="popt-l">no meds</div></button>
+        <button class="popt" data-ci-action="✓|var(--ga)"><div class="popt-v" style="color:var(--ga)">✓</div><div class="popt-l">taken</div></button>
+        <button class="popt" data-ci-action="—|var(--t3)"><div class="popt-v" style="color:var(--t3)">—</div><div class="popt-l">not yet</div></button>
+        <button class="popt" data-ci-action="skip|var(--ta)"><div class="popt-v" style="color:var(--ta)">skip</div><div class="popt-l">no meds</div></button>
       </div>
       <button class="pbtn" onclick="closePop()">done</button>
     </div>
