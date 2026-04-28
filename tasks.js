@@ -172,6 +172,7 @@ function addTaskToBlock(task, slotId) {
 }
 
 function renderSavedTask(t) {
+  if (t.done) return; // completed tasks don't re-render — data persists, view stays clean
   if (t.blockSlot) { addTaskToBlock(t, t.blockSlot); return; }
   const col = document.getElementById('col-' + t.col);
   if (!col) return;
@@ -184,33 +185,94 @@ function renderSavedTask(t) {
 
 function toggleTask(el) {
   const cb  = el.querySelector('.tcb');
-  const txt = el.querySelector('.tt');
   const wasDone = cb.classList.contains('done');
-  cb.classList.toggle('done');
-  txt.classList.toggle('done');
+  if (wasDone) return; // already done — no toggle back from the checkbox
+
   flash();
 
-  const delta = wasDone ? -1 : 1;
-  const count = Math.max(0, Storage.getTasksDoneCount() + delta);
+  const id    = parseInt(el.dataset.id);
+  const tasks = Storage.getTasks();
+  const found = tasks.find(t => t.id === id);
+  if (!found) return;
+
+  // mark done in storage immediately
+  found.done = true;
+  Storage.saveTasks(tasks);
+
+  const count = Math.max(0, Storage.getTasksDoneCount() + 1);
   Storage.saveTasksDoneCount(count);
   AppState.tasksDoneCount = count;
   setEl('streakTasks', count);
   setEl('statTasks',   count);
 
-  const id    = parseInt(el.dataset.id);
-  const tasks = Storage.getTasks();
-  const found = tasks.find(t => t.id === id);
-  if (found) {
-    found.done = !wasDone;
-    Storage.saveTasks(tasks);
-    if (found.dom === 'var(--pl)') {
-      const bc = Math.max(0, Storage.getBrainTasksCount() + delta);
-      Storage.saveBrainTasksCount(bc);
-      AppState.brainTasksCount = bc;
-      setEl('streakBrain', bc);
-    }
+  if (found.dom === 'var(--pl)') {
+    const bc = Math.max(0, Storage.getBrainTasksCount() + 1);
+    Storage.saveBrainTasksCount(bc);
+    AppState.brainTasksCount = bc;
+    setEl('streakBrain', bc);
   }
   updateDomainRings();
+
+  // animate out after undo window
+  el.style.transition = 'opacity .3s, transform .3s';
+  el.style.opacity    = '0';
+  el.style.transform  = 'translateX(16px)';
+  const removeTimer = setTimeout(() => el.remove(), 300);
+
+  // undo toast
+  showUndoToast(found.text, () => {
+    // undo — restore task
+    clearTimeout(removeTimer);
+    el.style.opacity   = '1';
+    el.style.transform = '';
+    found.done = false;
+    Storage.saveTasks(tasks);
+
+    const uc = Math.max(0, Storage.getTasksDoneCount() - 1);
+    Storage.saveTasksDoneCount(uc);
+    AppState.tasksDoneCount = uc;
+    setEl('streakTasks', uc);
+    setEl('statTasks',   uc);
+
+    if (found.dom === 'var(--pl)') {
+      const ubc = Math.max(0, Storage.getBrainTasksCount() - 1);
+      Storage.saveBrainTasksCount(ubc);
+      AppState.brainTasksCount = ubc;
+      setEl('streakBrain', ubc);
+    }
+    updateDomainRings();
+  });
+}
+
+// ── UNDO TOAST ──
+let _undoToastTimer = null;
+
+function showUndoToast(taskText, onUndo) {
+  // clear any existing toast
+  const existing = document.getElementById('undoToast');
+  if (existing) existing.remove();
+  if (_undoToastTimer) clearTimeout(_undoToastTimer);
+
+  const toast = document.createElement('div');
+  toast.id = 'undoToast';
+  toast.innerHTML = `<span class="undo-label">task complete</span><button class="undo-btn" id="undoBtn">undo</button>`;
+  document.body.appendChild(toast);
+
+  // trigger entrance animation
+  requestAnimationFrame(() => toast.classList.add('show'));
+
+  const dismiss = () => {
+    toast.classList.remove('show');
+    setTimeout(() => { if (toast.parentNode) toast.remove(); }, 300);
+  };
+
+  document.getElementById('undoBtn').addEventListener('click', () => {
+    onUndo();
+    dismiss();
+    clearTimeout(_undoToastTimer);
+  });
+
+  _undoToastTimer = setTimeout(dismiss, 4500);
 }
 
 function toggleBT(el) {
