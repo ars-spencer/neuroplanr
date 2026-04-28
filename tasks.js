@@ -213,20 +213,20 @@ function toggleTask(el) {
   }
   updateDomainRings();
 
-  // animate out — but wait until undo window closes
-  const removeTimer = setTimeout(() => {
-    el.style.transition = 'opacity .3s, transform .3s';
-    el.style.opacity    = '0';
-    el.style.transform  = 'translateX(16px)';
-    setTimeout(() => el.remove(), 300);
-  }, 4600); // slightly after toast disappears
+  // animate out immediately — checkmark flash then fade
+  el.style.transition = 'opacity .35s, transform .35s';
+  requestAnimationFrame(() => {
+    el.style.opacity   = '0';
+    el.style.transform = 'translateX(16px)';
+  });
+  const removeTimer = setTimeout(() => el.remove(), 380);
 
-  // undo toast — tap anywhere on toast to undo
+  // undo toast — tap anywhere to bring task back
   showUndoToast(found.text, () => {
+    // cancel removal if still pending
     clearTimeout(removeTimer);
-    el.style.opacity   = '1';
-    el.style.transform = '';
-    el.style.transition = '';
+
+    // restore task in storage
     found.done = false;
     Storage.saveTasks(tasks);
 
@@ -243,6 +243,23 @@ function toggleTask(el) {
       setEl('streakBrain', ubc);
     }
     updateDomainRings();
+
+    // re-render the task element in its column and fade it back in
+    const col = document.getElementById('col-' + found.col);
+    if (col) {
+      const restored = document.createElement('div');
+      restored.className = 'task';
+      restored.dataset.id = found.id;
+      restored.onclick = function(e) { if (!e.target.classList.contains('task-edit-btn')) toggleTask(this); };
+      const dlFlag = found.deadlineDate ? `<span class="task-dl-flag">📅 ${formatDeadline(found.deadlineDate, found.deadlineTime)}</span>` : '';
+      restored.innerHTML = `<div class="tcb"></div><div class="pip" style="background:${found.dom}"></div><span class="tt">${found.text}</span>${dlFlag}<button class="task-edit-btn" onclick="openTaskEdit(this.closest('.task'),event)" title="edit">···</button>`;
+      restored.style.opacity = '0';
+      col.appendChild(restored);
+      requestAnimationFrame(() => {
+        restored.style.transition = 'opacity .3s';
+        restored.style.opacity    = '1';
+      });
+    }
   });
 }
 
