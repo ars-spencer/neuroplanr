@@ -36,11 +36,9 @@ function renderCITiles() {
 
   // build active tile list in definition order
   _activeTiles = CI_TILE_DEFS.filter(d => tileNames.includes(d.name));
-  console.log('[neuroplanr] renderCITiles — saved:', saved, '→ active:', _activeTiles.map(t => t.name));
 
   // ── render home screen compact dots ──
   const checkin = document.querySelector('.checkin');
-  console.log('[neuroplanr] .checkin element found:', !!checkin);
   if (checkin) {
     checkin.innerHTML = '';
     _activeTiles.forEach((tile, idx) => {
@@ -73,17 +71,24 @@ function renderCITiles() {
 
 // ── SHOW POPUP for tile at index ──
 function showCIpop(idx) {
+  // if _activeTiles isn't ready yet, build it now
+  if (!_activeTiles.length) renderCITiles();
   const tile = _activeTiles[idx];
   if (!tile) return;
   const pop = document.getElementById(tile.popId);
   if (!pop) return;
 
-  // rebuild buttons with correct idx bound via closure — no fragile string patching
+  // bind correct idx to every button via closure at open time
   pop.querySelectorAll('.popt, .ph-btn').forEach(btn => {
     const action = btn.getAttribute('data-ci-action');
     if (action) {
-      const [val, color] = action.split('|');
-      btn.onclick = () => setCIval(idx, val, color, btn);
+      const parts = action.split('|');
+      const val   = parts[0];
+      const color = parts[1];
+      // replace any existing onclick to avoid stale closures
+      const newBtn = btn.cloneNode(true);
+      newBtn.addEventListener('click', () => setCIval(idx, val, color, newBtn));
+      btn.parentNode.replaceChild(newBtn, btn);
     }
   });
   showPop(tile.popId);
