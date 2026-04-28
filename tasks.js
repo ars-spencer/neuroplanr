@@ -213,18 +213,20 @@ function toggleTask(el) {
   }
   updateDomainRings();
 
-  // animate out after undo window
-  el.style.transition = 'opacity .3s, transform .3s';
-  el.style.opacity    = '0';
-  el.style.transform  = 'translateX(16px)';
-  const removeTimer = setTimeout(() => el.remove(), 300);
+  // animate out — but wait until undo window closes
+  const removeTimer = setTimeout(() => {
+    el.style.transition = 'opacity .3s, transform .3s';
+    el.style.opacity    = '0';
+    el.style.transform  = 'translateX(16px)';
+    setTimeout(() => el.remove(), 300);
+  }, 4600); // slightly after toast disappears
 
-  // undo toast
+  // undo toast — tap anywhere on toast to undo
   showUndoToast(found.text, () => {
-    // undo — restore task
     clearTimeout(removeTimer);
     el.style.opacity   = '1';
     el.style.transform = '';
+    el.style.transition = '';
     found.done = false;
     Storage.saveTasks(tasks);
 
@@ -255,7 +257,8 @@ function showUndoToast(taskText, onUndo) {
 
   const toast = document.createElement('div');
   toast.id = 'undoToast';
-  toast.innerHTML = `<span class="undo-label">task complete</span><button class="undo-btn" id="undoBtn">undo</button>`;
+  // whole toast is the tap target — big and easy to hit on mobile
+  toast.innerHTML = `<span class="undo-label">task complete —</span><span class="undo-btn">tap to undo</span>`;
   document.body.appendChild(toast);
 
   // trigger entrance animation
@@ -266,7 +269,8 @@ function showUndoToast(taskText, onUndo) {
     setTimeout(() => { if (toast.parentNode) toast.remove(); }, 300);
   };
 
-  document.getElementById('undoBtn').addEventListener('click', () => {
+  // tap anywhere on toast = undo
+  toast.addEventListener('click', () => {
     onUndo();
     dismiss();
     clearTimeout(_undoToastTimer);
