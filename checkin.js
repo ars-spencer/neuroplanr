@@ -75,14 +75,15 @@ function renderCITiles() {
 function showCIpop(idx) {
   const tile = _activeTiles[idx];
   if (!tile) return;
-  // patch setCIval index into popup buttons for this tile
   const pop = document.getElementById(tile.popId);
   if (!pop) return;
-  pop.querySelectorAll('.popt').forEach(btn => {
-    const onclickAttr = btn.getAttribute('onclick');
-    if (onclickAttr) {
-      // replace the placeholder index (-1) with the real idx
-      btn.setAttribute('onclick', onclickAttr.replace(/setCIval\([^,]+,/, `setCIval(${idx},`));
+
+  // rebuild buttons with correct idx bound via closure — no fragile string patching
+  pop.querySelectorAll('.popt, .ph-btn').forEach(btn => {
+    const action = btn.getAttribute('data-ci-action');
+    if (action) {
+      const [val, color] = action.split('|');
+      btn.onclick = () => setCIval(idx, val, color, btn);
     }
   });
   showPop(tile.popId);
