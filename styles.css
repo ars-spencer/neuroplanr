@@ -561,3 +561,41 @@ body.dark .mm-node{background:var(--su);}
 .dfl.show{opacity:1;}
 .dfi{font-family:var(--serif);font-size:28px;color:var(--gm);}
 body.dark .dfi{color:var(--gl);}
+
+/* ── UNDO TOAST ── */
+#undoToast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--ink, #1C1A14);
+  color: var(--ln, #F5F0E8);
+  border-radius: 24px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity .25s, transform .25s;
+  z-index: 9999;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0,0,0,.18);
+}
+#undoToast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.undo-label { opacity: .75; }
+.undo-btn {
+  background: none;
+  border: 1px solid rgba(255,255,255,.25);
+  color: var(--ln, #F5F0E8);
+  border-radius: 12px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: .03em;
+}
+.undo-btn:active { opacity: .7; }
