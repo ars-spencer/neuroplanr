@@ -76,19 +76,20 @@
   <div class="ob-prog"><div class="ob-pd done"></div><div class="ob-pd done"></div><div class="ob-pd now"></div><div class="ob-pd"></div><div class="ob-pd"></div></div>
   <div class="ob-cnt">
     <div class="ob-ey">daily check-in</div>
-    <div class="ob-hl">choose your<br><em>4 tiles.</em></div>
+    <div class="ob-hl">choose your<br><em>tiles.</em></div>
     <div class="ob-body">these appear every day on your home screen. pick what's useful — nothing is required.</div>
-    <div class="cilimit">select up to <strong>4</strong> — <span id="cicnt">4</span> chosen</div>
+    <div class="cilimit">select up to <strong>5</strong> — <span id="cicnt">3</span> chosen</div>
     <div class="cirows">
-      <div class="cirow on" onclick="togCI(this)"><div class="ciico" style="background:rgba(200,120,10,.1)">⚡</div><div class="cibody"><div class="ciname">Energy level</div><div class="cidesc">low / med / high</div></div><div class="cicheck"></div></div>
-      <div class="cirow on" onclick="togCI(this)"><div class="ciico" style="background:rgba(139,69,19,.1)">🌙</div><div class="cibody"><div class="ciname">Cycle phase</div><div class="cidesc">menstrual / follicular / ovulation / luteal</div></div><div class="cicheck"></div></div>
-      <div class="cirow on" onclick="togCI(this)"><div class="ciico" style="background:rgba(107,91,139,.1)">✦</div><div class="cibody"><div class="ciname">Mood</div><div class="cidesc">rough / okay / good</div></div><div class="cicheck"></div></div>
+      <div class="cirow on" onclick="togCI(this)"><div class="ciico" style="background:rgba(200,120,10,.1)">⚡</div><div class="cibody"><div class="ciname">Energy level</div><div class="cidesc">low / med / high</div><div class="cirec">powers smart planning</div></div><div class="cicheck"></div></div>
+      <div class="cirow on" onclick="togCI(this)"><div class="ciico" style="background:rgba(107,91,139,.1)">✦</div><div class="cibody"><div class="ciname">Mood</div><div class="cidesc">rough / okay / good</div><div class="cirec">powers smart planning</div></div><div class="cicheck"></div></div>
+      <div class="cirow" onclick="togCI(this)"><div class="ciico" style="background:rgba(139,69,19,.1)">🌙</div><div class="cibody"><div class="ciname">Cycle phase</div><div class="cidesc">menstrual / follicular / ovulation / luteal</div><div class="cirec">our core feature — understanding your cycle</div></div><div class="cicheck"></div></div>
       <div class="cirow on" onclick="togCI(this)"><div class="ciico" style="background:rgba(92,143,58,.1)">◉</div><div class="cibody"><div class="ciname">Medication</div><div class="cidesc">taken / not yet / no meds</div></div><div class="cicheck"></div></div>
       <div class="cirow" onclick="togCI(this)"><div class="ciico" style="background:rgba(107,91,139,.1)">◑</div><div class="cibody"><div class="ciname">Sleep quality</div><div class="cidesc">poor / okay / good</div></div><div class="cicheck"></div></div>
       <div class="cirow" onclick="togCI(this)"><div class="ciico" style="background:rgba(192,120,64,.1)">◈</div><div class="cibody"><div class="ciname">Stress level</div><div class="cidesc">calm / moderate / overwhelmed</div></div><div class="cicheck"></div></div>
       <div class="cirow" onclick="togCI(this)"><div class="ciico" style="background:rgba(139,69,19,.1)">◎</div><div class="cibody"><div class="ciname">Period only</div><div class="cidesc">simple on / off</div></div><div class="cicheck"></div></div>
       <div class="cirow" onclick="togCI(this)"><div class="ciico" style="background:rgba(92,143,58,.1)">◇</div><div class="cibody"><div class="ciname">Supplements</div><div class="cidesc">taken / skipped</div></div><div class="cicheck"></div></div>
       <div class="cirow" onclick="togCI(this)"><div class="ciico" style="background:rgba(200,120,10,.1)">◐</div><div class="cibody"><div class="ciname">Therapy / CBT</div><div class="cidesc">did I do my practice today</div></div><div class="cicheck"></div></div>
+      <div class="cirow" onclick="togCI(this)"><div class="ciico" style="background:rgba(92,143,58,.1)">🏃</div><div class="cibody"><div class="ciname">Exercise</div><div class="cidesc">moved today / rest day</div></div><div class="cicheck"></div></div>
     </div>
   </div>
   <div class="ob-foot"><button class="btn-primary" onclick="goOb(4)">next →</button><button class="btn-secondary" onclick="goOb(4)">use defaults</button></div>
@@ -274,13 +275,10 @@
   <div class="sh"><span class="sh-t">today's check-in</span><span class="sh-a" id="ciStatus">not done yet</span></div>
   <div class="tci">
     <div class="tci-top"><span class="tci-title">how are you today?</span><span class="tci-date" id="tciDate">today</span></div>
-    <div class="tci-grid">
-      <div class="tci-tile" id="ttile-0" onclick="showCIpop(0)"><div class="tci-label">energy</div><div class="tci-val" style="color:var(--ru)" id="ttv-0">tap to log</div></div>
-      <div class="tci-tile" id="ttile-1" onclick="showCIpop(1)"><div class="tci-label">cycle phase</div><div class="tci-val" style="color:var(--tl)" id="ttv-1">tap to log</div></div>
-      <div class="tci-tile" id="ttile-2" onclick="showCIpop(2)"><div class="tci-label">mood</div><div class="tci-val" style="color:var(--pll)" id="ttv-2">tap to log</div></div>
-      <div class="tci-tile" id="ttile-3" onclick="showCIpop(3)"><div class="tci-label">meds</div><div class="tci-val" style="color:var(--t3)" id="ttv-3">tap to log</div></div>
+    <div class="tci-grid" id="tciGrid">
+      <!-- tiles rendered dynamically by checkin.js based on onboarding selection -->
     </div>
-    <div class="tci-hint" id="ciHint">log all 4 to complete today's check-in</div>
+    <div class="tci-hint" id="ciHint">tap a tile to log today's check-in</div>
   </div>
   <div class="sh"><span class="sh-t">this week</span></div>
   <div class="wstrip"><div class="wstrip-inner" id="weekStrip"></div></div>
@@ -391,6 +389,56 @@
 <div class="ov" id="ov" onclick="closePop(event)">
   <div class="pop">
     <div class="dpill"></div>
+    <div id="p-exercise" style="display:none">
+      <div class="pop-title">exercise</div>
+      <div class="pop-opts">
+        <button class="popt" onclick="setCIval(-1,'moved','var(--ga)',this)"><div class="popt-v" style="color:var(--ga)">✓</div><div class="popt-l">moved today</div></button>
+        <button class="popt" onclick="setCIval(-1,'rest','var(--ru)',this)"><div class="popt-v" style="color:var(--ru)">◡</div><div class="popt-l">rest day</div></button>
+      </div>
+    </div>
+
+    <div id="p-sleep" style="display:none">
+      <div class="pop-title">sleep quality</div>
+      <div class="pop-opts">
+        <button class="popt" onclick="setCIval(-1,'poor','var(--te)',this)"><div class="popt-v" style="color:var(--te)">–</div><div class="popt-l">poor</div></button>
+        <button class="popt" onclick="setCIval(-1,'okay','var(--ru)',this)"><div class="popt-v" style="color:var(--ru)">~</div><div class="popt-l">okay</div></button>
+        <button class="popt" onclick="setCIval(-1,'good','var(--ga)',this)"><div class="popt-v" style="color:var(--ga)">+</div><div class="popt-l">good</div></button>
+      </div>
+    </div>
+
+    <div id="p-stress" style="display:none">
+      <div class="pop-title">stress level</div>
+      <div class="pop-opts">
+        <button class="popt" onclick="setCIval(-1,'calm','var(--ga)',this)"><div class="popt-v" style="color:var(--ga)">◡</div><div class="popt-l">calm</div></button>
+        <button class="popt" onclick="setCIval(-1,'moderate','var(--ru)',this)"><div class="popt-v" style="color:var(--ru)">~</div><div class="popt-l">moderate</div></button>
+        <button class="popt" onclick="setCIval(-1,'high','var(--te)',this)"><div class="popt-v" style="color:var(--te)">!</div><div class="popt-l">overwhelmed</div></button>
+      </div>
+    </div>
+
+    <div id="p-period" style="display:none">
+      <div class="pop-title">period</div>
+      <div class="pop-opts">
+        <button class="popt" onclick="setCIval(-1,'yes','var(--te)',this)"><div class="popt-v" style="color:var(--te)">◉</div><div class="popt-l">yes</div></button>
+        <button class="popt" onclick="setCIval(-1,'no','var(--ga)',this)"><div class="popt-v" style="color:var(--ga)">○</div><div class="popt-l">no</div></button>
+      </div>
+    </div>
+
+    <div id="p-supplements" style="display:none">
+      <div class="pop-title">supplements</div>
+      <div class="pop-opts">
+        <button class="popt" onclick="setCIval(-1,'taken','var(--ga)',this)"><div class="popt-v" style="color:var(--ga)">✓</div><div class="popt-l">taken</div></button>
+        <button class="popt" onclick="setCIval(-1,'skipped','var(--t3)',this)"><div class="popt-v" style="color:var(--t3)">–</div><div class="popt-l">skipped</div></button>
+      </div>
+    </div>
+
+    <div id="p-therapy" style="display:none">
+      <div class="pop-title">therapy / CBT</div>
+      <div class="pop-opts">
+        <button class="popt" onclick="setCIval(-1,'done','var(--ga)',this)"><div class="popt-v" style="color:var(--ga)">✓</div><div class="popt-l">did my practice</div></button>
+        <button class="popt" onclick="setCIval(-1,'skip','var(--t3)',this)"><div class="popt-v" style="color:var(--t3)">–</div><div class="popt-l">not today</div></button>
+      </div>
+    </div>
+
     <div id="p-energy" style="display:none">
       <div class="pop-t">energy today</div>
       <div class="pop-opts">
@@ -495,14 +543,6 @@
   </div>
 </div>
 
-<!-- Load order matters: storage → state → features → core -->
-<script src="storage.js"></script>
-<script src="state.js"></script>
-<script src="checkin.js"></script>
-<script src="insights.js"></script>
-<script src="tasks.js"></script>
-<script src="plan.js"></script>
-<script src="mindmap.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
