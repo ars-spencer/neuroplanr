@@ -600,3 +600,12 @@ body.dark .dfi{color:var(--gl);}
   text-underline-offset: 2px;
   white-space: nowrap;
 }
+
+/* ── TILE PICKER — recommended label ── */
+.cirec {
+  font-size: 10px;
+  color: var(--gm, #3D6B20);
+  margin-top: 2px;
+  letter-spacing: .02em;
+  opacity: .85;
+}
