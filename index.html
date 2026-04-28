@@ -543,6 +543,14 @@
   </div>
 </div>
 
+<!-- Load order matters: storage → state → features → core -->
+<script src="storage.js"></script>
+<script src="state.js"></script>
+<script src="checkin.js"></script>
+<script src="insights.js"></script>
+<script src="tasks.js"></script>
+<script src="plan.js"></script>
+<script src="mindmap.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
