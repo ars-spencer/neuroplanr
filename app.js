@@ -209,7 +209,7 @@ function goTab(tab) {
   if (tab === 'track')    refreshTrackTab();
   if (tab === 'insights') refreshInsightsTab();
   if (tab === 'map')      mmLoadData();
-  if (tab === 'plan')     loadDayView();
+  if (tab === 'plan')     { dayOff = 0; loadDayView(); }
   window.scrollTo(0, 0);
 }
 
