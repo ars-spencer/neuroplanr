@@ -40,7 +40,9 @@ const BUFFERS = [
 
 function getDayKey(offset) {
   const d = new Date(); d.setDate(d.getDate() + offset);
-  return d.toISOString().slice(0, 10);
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
 }
 
 function getDayLabel(offset) {
@@ -79,7 +81,9 @@ function checkCarryForward(key, dayData) {
   if (dayOff !== 0) { banner.style.display = 'none'; return; }
 
   const yd = new Date(); yd.setDate(yd.getDate() - 1);
-  const ydKey  = yd.toISOString().slice(0, 10);
+  const ydKey = yd.getFullYear() + '-' +
+  String(yd.getMonth() + 1).padStart(2, '0') + '-' +
+  String(yd.getDate()).padStart(2, '0');
   const ydData = Storage.getDayData(ydKey);
   if (!ydData || !Object.keys(ydData.tasks || {}).length) { banner.style.display = 'none'; return; }
 
